@@ -66,7 +66,12 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			totalUnrankedGames : jQuery.extend(true, {}, chartConfigs.blackWhiteChart),
 			totalUnrankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			blackUnrankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
-			whiteUnrankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart)
+			whiteUnrankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			allBoardSizes : jQuery.extend(true, {}, chartConfigs.colorChart),
+			nineteenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			thirteenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			nineWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			otherSizesWinRate : jQuery.extend(true, {}, chartConfigs.colorChart)
 		},
 
 		showAllGames : true,
@@ -109,6 +114,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 		generateAllGamesData();
 		generateRankedGamesData();
 		generateUnrankedGamesData();
+		generateBoardSizesData();
 		generateOpponentsData();
 		generateMiscData();
 
@@ -325,6 +331,100 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			]
 		};
 	}
+
+	/*
+	 *	BOARD SIZES STATISTICS
+	 */
+	 var generateBoardSizesData = function(){
+ 		var nineteenGames = 0, thirteenGames = 0, nineGames = 0, otherGames = 0,
+ 				nineteenLosses = 0, thirteenLosses = 0, nineLosses = 0, otherLosses = 0;
+ 		var game;
+
+ 		for(var i=0;i<$scope.statistics.allGames.length; i++){
+ 			game = $scope.statistics.allGames[i];
+			if(game.width == 19 && game.height == 19){
+				nineteenGames++;
+				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
+						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+					nineteenLosses++;
+				}
+			}
+ 			else if(game.width == 13 && game.height == 13){
+				thirteenGames++;
+				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
+						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+					thirteenLosses++;
+				}
+			}
+			else if(game.width == 9 && game.height == 9){
+				nineGames++;
+				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
+						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+					nineLosses++;
+				}
+			}
+			else{
+				otherGames++;
+				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
+						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+					otherLosses++;
+				}
+			}
+ 		}
+
+ 		$scope.statistics.chartData.allBoardSizes.data = {
+ 			"cols" : [
+ 				{id: "c", label: "Sizes", type: "string"},
+ 				{id: "g", label: "Games", type: "number"},
+ 			],
+ 			"rows": [
+ 				{c: [ {v: "19x19"}, {v: nineteenGames} ]},
+ 				{c: [ {v: "13x13"}, {v: thirteenGames} ]},
+				{c: [ {v: "9x9"}, {v: nineGames} ]},
+ 				{c: [ {v: "Other Sizes"}, {v: otherGames} ]},
+ 			]
+ 		};
+ 		$scope.statistics.chartData.nineteenWinRate.data = {
+ 			"cols" : [
+ 				{id: "c", label: "Result", type: "string"},
+ 				{id: "g", label: "Games", type: "number"},
+ 			],
+ 			"rows": [
+ 				{c: [ {v: "Losses"}, {v: nineteenLosses} ]},
+ 				{c: [ {v: "Wins"}, {v: (nineteenGames - nineteenLosses) } ]},
+ 			]
+ 		};
+ 		$scope.statistics.chartData.thirteenWinRate.data = {
+ 			"cols" : [
+ 				{id: "c", label: "Result", type: "string"},
+ 				{id: "g", label: "Games", type: "number"},
+ 			],
+ 			"rows": [
+ 				{c: [ {v: "Losses"}, {v: thirteenLosses} ]},
+ 				{c: [ {v: "Wins"}, {v: (thirteenGames - thirteenLosses)} ]},
+ 			]
+ 		};
+ 		$scope.statistics.chartData.nineWinRate.data = {
+ 			"cols" : [
+ 				{id: "c", label: "Result", type: "string"},
+ 				{id: "g", label: "Games", type: "number"},
+ 			],
+ 			"rows": [
+ 				{c: [ {v: "Losses"}, {v: nineLosses} ]},
+ 				{c: [ {v: "Wins"}, {v: (nineGames - nineLosses)} ]},
+ 			]
+ 		};
+		$scope.statistics.chartData.otherSizesWinRate.data = {
+ 			"cols" : [
+ 				{id: "c", label: "Result", type: "string"},
+ 				{id: "g", label: "Games", type: "number"},
+ 			],
+ 			"rows": [
+ 				{c: [ {v: "Losses"}, {v: otherLosses} ]},
+ 				{c: [ {v: "Wins"}, {v: (otherGames - otherLosses)} ]},
+ 			]
+ 		};
+ 	}
 
 	/*
 	 *	OPPONENTS STATISTICS

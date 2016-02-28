@@ -21,27 +21,27 @@
 			<h2 id="total_games_stats" class="text-center">Total games played on OGS: {{statistics.totalGames}}</h2>
 			<div ng-show="statistics.showAllGames">
 				<div class="row">
-					<div class="col-md-offset-3 col-md-6">
+					<div class="col-sm-offset-3 col-sm-6">
 						<div id="total_games_chart" google-chart chart="statistics.chartData.totalGames"></div>
 					</div>
 				</div>
 
 				<h3 class="text-center">Win/Loss ratio:</h3>
 				<div class="row">
-					<div class="col-md-4">
+					<div class="col-sm-4">
 						<h4 class="text-center">Total</h4>
 						<div id="total_win_rate_chart" google-chart chart="statistics.chartData.totalWinRate"></div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-sm-4">
 						<h4 class="text-center">As Black</h4>
 						<div id="black_win_rate_chart" google-chart chart="statistics.chartData.blackWinRate"></div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-sm-4">
 						<h4 class="text-center">As White</h4>
 						<div id="white_win_rate_chart" google-chart chart="statistics.chartData.whiteWinRate"></div>
 					</div>
 
-					<em ng-show="statistics.lost50" class='col-md-12 gratz'>Congrats, <a target='_blank' href='http://senseis.xmp.net/?page=LoseYourFirst50GamesAsQuicklyAsPossible'>you lost your first 50 games</a>!</em>
+					<em ng-show="statistics.lost50" class='col-sm-12 gratz'>Congrats, <a target='_blank' href='http://senseis.xmp.net/?page=LoseYourFirst50GamesAsQuicklyAsPossible'>you lost your first 50 games</a>!</em>
 				</div>
 			</div>
 		</section>
@@ -50,22 +50,22 @@
 			<h2 id="ranked_games_stats" class="text-center">Ranked games: {{statistics.totalRankedGames}}</h2>
 			<div ng-show="statistics.showRankedGames">
 				<div class="row">
-					<div class="col-md-offset-3 col-md-6">
+					<div class="col-sm-offset-3 col-sm-6">
 						<div id="white_win_rate_chart" google-chart chart="statistics.chartData.totalRankedGames"></div>
 					</div>
 				</div>
 
 				<h3 class="text-center">Win/Loss ratio:</h3>
 				<div class="row">
-					<div class="col-md-4">
+					<div class="col-sm-4">
 						<h4 class="text-center">Total</h4>
 						<div id="total_ranked_win_rate_chart" google-chart chart="statistics.chartData.totalRankedWinRate"></div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-sm-4">
 						<h4 class="text-center">As Black</h4>
 						<div id="black_ranked_win_rate_chart" google-chart chart="statistics.chartData.blackRankedWinRate"></div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-sm-4">
 						<h4 class="text-center">As White</h4>
 						<div id="white_ranked_win_rate_chart" google-chart chart="statistics.chartData.whiteRankedWinRate"></div>
 					</div>
@@ -77,24 +77,57 @@
 			<h2 id="unranked_games_stats" class="text-center">Unranked games: {{statistics.totalUnrankedGames}}</h2>
 			<div ng-show="statistics.showUnrankedGames">
 				<div class="row">
-					<div class="col-md-offset-3 col-md-6">
+					<div class="col-sm-offset-3 col-sm-6">
 						<div id="total_unranked_games_chart" google-chart chart="statistics.chartData.totalUnrankedGames"></div>
 					</div>
 				</div>
 
 				<h3 class="text-center">Win/Loss ratio:</h3>
 				<div class="row">
-					<div class="col-md-4">
+					<div class="col-sm-4">
 						<h4 class="text-center">Total</h4>
 						<div id="total_unranked_win_rate_chart" google-chart chart="statistics.chartData.totalUnrankedWinRate"></div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-sm-4">
 						<h4 class="text-center">As Black</h4>
 						<div id="black_unranked_win_rate_chart" google-chart chart="statistics.chartData.blackUnrankedWinRate"></div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-sm-4">
 						<h4 class="text-center">As White</h4>
 						<div id="white_unranked_win_rate_chart" google-chart chart="statistics.chartData.whiteUnrankedWinRate"></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="stats_block">
+			<h2 id="board_sizes_stats" class="text-center">Performance across board sizes</h2>
+			<div ng-show="statistics.showAllGames">
+				<div class="row">
+					<div class="col-sm-offset-2 col-sm-8">
+						<div id="total_board_sizes_chart" google-chart chart="statistics.chartData.allBoardSizes"></div>
+					</div>
+				</div>
+
+				<h3 class="text-center">Win/Loss ratio:</h3>
+				<div class="row">
+					<div class="col-sm-6">
+						<h4 class="text-center">19x19</h4>
+						<div id="19_win_rate_chart" google-chart chart="statistics.chartData.nineteenWinRate"></div>
+					</div>
+					<div class="col-sm-6">
+						<h4 class="text-center">13x13</h4>
+						<div id="13_win_rate_chart" google-chart chart="statistics.chartData.thirteenWinRate"></div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
+						<h4 class="text-center">9x9</h4>
+						<div id="9_win_rate_chart" google-chart chart="statistics.chartData.nineWinRate"></div>
+					</div>
+					<div class="col-sm-6">
+						<h4 class="text-center">Other sizes</h4>
+						<div id="other_sizes_win_rate_chart" google-chart chart="statistics.chartData.otherSizesWinRate"></div>
 					</div>
 				</div>
 			</div>
@@ -104,7 +137,7 @@
 			<h2 id="opponents_stats" class="text-center">Number of opponents faced: {{statistics.totalOpponents}}</h2>
 			<div ng-show="statistics.showOpponents">
 				<div class="row">
-					<div id="opponents_polars_chart" data-opponent-chart data-chart-data="opponents" class="col-md-10 col-md-offset-1">
+					<div id="opponents_polars_chart" data-opponent-chart data-chart-data="opponents" class="opponent_chart col-sm-10 col-sm-offset-1">
 						<ul class="bar_legend">
 							<li><div>Weakest Opponent</div><span></span></li>
 							<li><div>Strongest Opponent</div><span></span></li>
