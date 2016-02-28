@@ -1,0 +1,123 @@
+<div ng-controller="UserStatisticsController">
+
+	<div ng-show="!$root.ready" class="loading_text">
+		<svg class="loading_icon animating" width="150" height="150">
+			<line class="hrline" x1="0" y1="71.5" x2="142" y2="71.5" stroke="#f8f8ff" stroke-width="1" />
+			<line class="vrline" x1="71.5" y1="0" x2="71.5" y2="142" stroke="#f8f8ff" stroke-width="1" />
+			<circle class="black_stone3" cx="71.5" cy="28.5" r="19.5" stroke-width="0" fill="#000000" />
+			<circle class="black_stone2" cx="28.5" cy="71.5" r="19.5" stroke-width="0" fill="#000000" />
+			<circle class="black_stone1" cx="114.5" cy="71.5" r="19.5" stroke-width="0" fill="#000000" />
+			<circle class="black_stone4" cx="71.5" cy="114.5" r="19.5" stroke-width="0" fill="#000000" />
+			<circle class="white_stone" cx="71.5" cy="71.5" r="20" stroke-width="0" fill="#f8f8ff" />
+		</svg>
+		<h4>Fetching games result from OGS: page {{loadingPage}} <span ng-show="totalPages > 0">of {{totalPages}}.<span></h4>
+		<p ng-show="connectionError" class="error ng-hide">
+			Error connecting to OGS server. <strong>Error code: {{connectionErrorCode}}</strong>. <span ng-show="retryNumber < 5">Retrying in {{retryNumber*retryNumber}} seconds.</span><span ng-hide="retryNumber < 5">Please try again later or contact me if you really have the need to stalk that person.</span>
+		</p>
+	</div>
+
+	<div class="invisible" ng-class="{totally_visible: $root.ready}">
+		<section class="stats_block">
+			<h2 id="total_games_stats" class="text-center">Total games played on OGS: {{statistics.totalGames}}</h2>
+			<div ng-show="statistics.showAllGames">
+				<div class="row">
+					<div class="col-md-offset-3 col-md-6">
+						<div id="total_games_chart" google-chart chart="statistics.chartData.totalGames"></div>
+					</div>
+				</div>
+
+				<h3 class="text-center">Win/Loss ratio:</h3>
+				<div class="row">
+					<div class="col-md-4">
+						<h4 class="text-center">Total</h4>
+						<div id="total_win_rate_chart" google-chart chart="statistics.chartData.totalWinRate"></div>
+					</div>
+					<div class="col-md-4">
+						<h4 class="text-center">As Black</h4>
+						<div id="black_win_rate_chart" google-chart chart="statistics.chartData.blackWinRate"></div>
+					</div>
+					<div class="col-md-4">
+						<h4 class="text-center">As White</h4>
+						<div id="white_win_rate_chart" google-chart chart="statistics.chartData.whiteWinRate"></div>
+					</div>
+
+					<em ng-show="statistics.lost50" class='col-md-12 gratz'>Congrats, <a target='_blank' href='http://senseis.xmp.net/?page=LoseYourFirst50GamesAsQuicklyAsPossible'>you lost your first 50 games</a>!</em>
+				</div>
+			</div>
+		</section>
+
+		<section class="stats_block">
+			<h2 id="ranked_games_stats" class="text-center">Ranked games: {{statistics.totalRankedGames}}</h2>
+			<div ng-show="statistics.showRankedGames">
+				<div class="row">
+					<div class="col-md-offset-3 col-md-6">
+						<div id="white_win_rate_chart" google-chart chart="statistics.chartData.totalRankedGames"></div>
+					</div>
+				</div>
+
+				<h3 class="text-center">Win/Loss ratio:</h3>
+				<div class="row">
+					<div class="col-md-4">
+						<h4 class="text-center">Total</h4>
+						<div id="total_ranked_win_rate_chart" google-chart chart="statistics.chartData.totalRankedWinRate"></div>
+					</div>
+					<div class="col-md-4">
+						<h4 class="text-center">As Black</h4>
+						<div id="black_ranked_win_rate_chart" google-chart chart="statistics.chartData.blackRankedWinRate"></div>
+					</div>
+					<div class="col-md-4">
+						<h4 class="text-center">As White</h4>
+						<div id="white_ranked_win_rate_chart" google-chart chart="statistics.chartData.whiteRankedWinRate"></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="stats_block">
+			<h2 id="unranked_games_stats" class="text-center">Unranked games: {{statistics.totalUnrankedGames}}</h2>
+			<div ng-show="statistics.showUnrankedGames">
+				<div class="row">
+					<div class="col-md-offset-3 col-md-6">
+						<div id="total_unranked_games_chart" google-chart chart="statistics.chartData.totalUnrankedGames"></div>
+					</div>
+				</div>
+
+				<h3 class="text-center">Win/Loss ratio:</h3>
+				<div class="row">
+					<div class="col-md-4">
+						<h4 class="text-center">Total</h4>
+						<div id="total_unranked_win_rate_chart" google-chart chart="statistics.chartData.totalUnrankedWinRate"></div>
+					</div>
+					<div class="col-md-4">
+						<h4 class="text-center">As Black</h4>
+						<div id="black_unranked_win_rate_chart" google-chart chart="statistics.chartData.blackUnrankedWinRate"></div>
+					</div>
+					<div class="col-md-4">
+						<h4 class="text-center">As White</h4>
+						<div id="white_unranked_win_rate_chart" google-chart chart="statistics.chartData.whiteUnrankedWinRate"></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="stats_block">
+			<h2 id="opponents_stats" class="text-center">Number of opponents faced: {{statistics.totalOpponents}}</h2>
+			<div ng-show="statistics.showOpponents">
+				<div class="row">
+					<div id="opponents_polars_chart" data-opponent-chart data-chart-data="opponents" class="col-md-10 col-md-offset-1">
+						<ul class="bar_legend">
+							<li><div>Weakest Opponent</div><span></span></li>
+							<li><div>Strongest Opponent</div><span></span></li>
+						</ul>
+						<div class="bar_chart"></div>
+						<ul data-rank-ruler class="ruler"></ul>
+					</div>
+				</div>
+				<ul class="spacing-top">
+					<li>Most played with: <a target="_blank" href="http://online-go.com/user/view/{{statistics.chartData.opponents.mostPlayed.id}}/{{statistics.chartData.opponents.mostPlayed.username}}"><img class="img-20" data-ng-src="http://online-go.com/api/v1/players/{{statistics.chartData.opponents.mostPlayed.id}}/icon?size=32"></img> {{statistics.chartData.opponents.mostPlayed.username}} ({{statistics.chartData.opponents.mostPlayed.rank}})</a> for {{statistics.chartData.opponents.mostPlayed.games}} games.</li>
+					<li>Average game per opponent: {{statistics.chartData.opponents.averageGamePerOpponent | number : 2}} games.</li>
+				</ul>
+			</div>
+		</section>
+	</div>
+</div>
