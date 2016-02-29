@@ -163,7 +163,7 @@
 				<ul class="info_list">
 					<li>Global ranking: <span ng-show="$root.player.isRanked">{{statistics.misc.globalRankMsg}}</span><span ng-hide="$root.player.isRanked">not available because this account is provisional.</span></li>
 					<li>Longest win streak: {{statistics.misc.longestStreak}} wins in a row!</li>
-					<li>Lifetime most active day: {{statistics.misc.mostActiveDay | date:'MMM d yyyy'}} with {{statistics.misc.gamesOnMostActiveDay}} games.</li>
+					<li>Lifetime most active day: {{statistics.misc.mostActiveDay | date:'d MMM yyyy'}} with {{statistics.misc.gamesOnMostActiveDay}} finished games.</li>
 				</ul>
 			</div>
 		</section>

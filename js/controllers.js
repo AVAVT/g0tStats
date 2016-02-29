@@ -2,8 +2,8 @@
 
 gotStatsControlers.controller('SidebarController',  ['$scope','$location',function($scope, $location) {
 	$scope.scrollTo = function(hash){
+		// because fuck angular and all this databinding bullshit that's why
     $('html,body').animate({scrollTop: $("#"+hash).offset().top},'fast');
-		console.log('fuck you motherfucker');
 	}
 
 	$scope.getUserStatistic = function(){
