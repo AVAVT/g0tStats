@@ -160,11 +160,18 @@
 		<section class="stats_block">
 			<h2 id="misc_stats" class="text-center">Miscellaneous statistics</h2>
 			<div ng-show="statistics.showAllGames">
-				<ul class="info_list">
-					<li>Global ranking: <span ng-show="$root.player.isRanked">{{statistics.misc.globalRankMsg}}</span><span ng-hide="$root.player.isRanked">not available because this account is provisional.</span></li>
-					<li>Longest win streak: {{statistics.misc.longestStreak}} wins in a row!</li>
-					<li>Lifetime most active day: {{statistics.misc.mostActiveDay | date:'d MMM yyyy'}} with {{statistics.misc.gamesOnMostActiveDay}} finished games.</li>
-				</ul>
+				<div class="row">
+					<div class="col-xs-12">
+						<h4 class="text-center">Activities in the past 15 days</h4>
+						<div id="recent_activity_chart" google-chart chart="statistics.chartData.recentActivity"></div>
+
+						<ul class="info_list">
+							<li>Global ranking: <span ng-show="$root.player.isRanked">{{statistics.misc.globalRankMsg}}</span><span ng-hide="$root.player.isRanked">not available because this account is provisional.</span></li>
+							<li>Longest win streak: {{statistics.misc.longestStreak}} wins in a row!</li>
+							<li>Lifetime most active day: {{statistics.misc.mostActiveDay | date:'d MMM yyyy'}} with {{statistics.misc.gamesOnMostActiveDay}} finished games.</li>
+						</ul>
+					</div>
+				</div>
 			</div>
 		</section>
 	</div>

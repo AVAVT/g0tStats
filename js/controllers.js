@@ -17,7 +17,7 @@ gotStatsControlers.controller('SidebarController',  ['$scope','$location',functi
 	}
 }]);
 
-gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScope', '$routeParams', '$http', function($scope, $rootScope, $routeParams, $http) {
+gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScope', '$routeParams', '$http', '$filter', function($scope, $rootScope, $routeParams, $http, $filter) {
 	$('html,body').animate({scrollTop: 0},'fast');
 
 	var that = this;
@@ -41,7 +41,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			options : {
 				backgroundColor : "transparent",
 				colors : ["#000000", "#f8f8ff"],
-				pieSliceTextStyle : {color: "#3366cc"},
+				pieSliceTextStyle : {color: "#337ab7"},
 				legend : { position: "bottom", textStyle: {color: "#f8f8ff", fontName: "Helvetica Neue", fontSize: 14}},
 				chartArea : {top: 10}
 			}
@@ -49,11 +49,24 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 		colorChart : {
 			type : "PieChart",
 			options: {
+				colors : ["#ee4207","#05a658", "#eeaa07", "#1831a2"],
 				backgroundColor : "transparent",
 				legend : { position: "bottom", textStyle: {color: "#f8f8ff", fontName: "Helvetica Neue", fontSize: 14}},
 				chartArea : {top: 10}
 			}
 		},
+		columnChart : {
+			type : "ColumnChart",
+			options : {
+				colors : ["#ee4207","#05a658", "#eeaa07", "#1831a2"],
+				backgroundColor : "transparent",
+				isStacked : true,
+				legend : { position: "bottom", textStyle: {color: "#f8f8ff", fontName: "Helvetica Neue", fontSize: 14}},
+				hAxis : {textStyle : {color: "#f8f8ff", fontName: "Helvetica Neue", fontSize: 11} },
+				vAxis : {textStyle : {color: "#f8f8ff", fontName: "Helvetica Neue", fontSize: 11} },
+				chartArea : {top: 10}
+			}
+		}
 	}
 
 	var globalSiteRankingData = {
@@ -83,7 +96,8 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			nineteenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			thirteenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			nineWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
-			otherSizesWinRate : jQuery.extend(true, {}, chartConfigs.colorChart)
+			otherSizesWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			recentActivity : jQuery.extend(true, {}, chartConfigs.columnChart)
 		},
 
 		misc : {
@@ -159,7 +173,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 					for(var i=0;i<successData.data.results.length;i++){
 						globalSiteRankingData.rank++
 						if(successData.data.results[i].id == $rootScope.player.id){
-							$scope.statistics.misc.globalRankMsg = "#" + globalSiteRankingData.rank + " amongs all " + $scope.statistics.misc.totalPlayers + " ranked players."
+							$scope.statistics.misc.globalRankMsg = "#" + globalSiteRankingData.rank + " amongs all " + $scope.statistics.misc.totalPlayers + " non-provisional players."
 							return true;
 						}
 					}
@@ -628,36 +642,82 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 	}
 
 	var generateMiscData = function(){
+		var game;
 		var longestStreak = 0, currentStreak = 0,
 				gamesOnMostActiveDay = 0, gamesOnCurrentDay = 0;
-		var mostActiveDay, currentDay = new Date();
-		var game;
 
+		var mostActiveDay, currentDay = new Date(), today = new Date();
+		today.setHours(0,0,0,0);
 		currentDay.setHours(0,0,0,0);
+
+
+		var recentDays = [];
+		var isRecentgame = true;
 
 		for(var i=0;i<$scope.statistics.allGames.length; i++){
 			game = $scope.statistics.allGames[i];
 
+			if(isRecentgame){
+				var gameDay = new Date(game.ended);
+				gameDay.setHours(0,0,0,0);
+
+				if(gotStatsApp.utilities.compareDays(today, gameDay) > 15){
+					isRecentgame = false;
+
+					var lastDay = new Date(today.getTime() - 15* 86400000);
+					var daysToAdd = gotStatsApp.utilities.compareDays(recentDays[recentDays.length-1].date, lastDay);
+					for(var j=0;j < daysToAdd;j++){
+						var tempDate = new Date(recentDays[recentDays.length-1].date.getTime() - 86400000);
+
+						recentDays.push({date: tempDate, stringDate: $filter('date')(tempDate, "d MMM"), wins: 0, losses: 0});
+					}
+				}
+
+				else{
+					var stringDate = $filter('date')(gameDay, "d MMM");
+
+					if(recentDays.length == 0){
+						var daysToAdd = gotStatsApp.utilities.compareDays(today, gameDay);
+						for(var j=0;j < daysToAdd;j++){
+							var tempDate = new Date(today.getTime() - j* 86400000);
+
+							recentDays.push({date: tempDate, stringDate: $filter('date')(tempDate, "d MMM"), wins: 0, losses: 0});
+						}
+						recentDays.push({date: gameDay, stringDate: stringDate, wins: 0, losses: 0});
+					}
+					else if(recentDays[recentDays.length-1].stringDate != stringDate){
+						var daysToAdd = gotStatsApp.utilities.compareDays(recentDays[recentDays.length-1].date, gameDay);
+						for(var j=1;j < daysToAdd;j++){
+							var tempDate = new Date(recentDays[recentDays.length-1].date.getTime() - 86400000);
+
+							recentDays.push({date: tempDate, stringDate: $filter('date')(tempDate, "d MMM"), wins: 0, losses: 0});
+						}
+						recentDays.push({date: gameDay, stringDate: stringDate, wins: 0, losses: 0});
+					}
+
+				}
+			}
+
 			// Winning streak
 			if( (game.players.black.id == $rootScope.player.id && game.white_lost)
 				||(game.players.white.id == $rootScope.player.id && game.black_lost) ){
+
 				currentStreak++;
+				if(isRecentgame) recentDays[recentDays.length-1].wins++;
+
 				if(currentStreak > longestStreak){
 					longestStreak = currentStreak;
 				}
 			}
 			else{
 				currentStreak = 0;
+				if(isRecentgame) recentDays[recentDays.length-1].losses++;
 			}
 
 			// Day by day
-			var day = new Date(game.ended);
-			day.setHours(0,0,0,0);
-			var hackDate = new Date(Date.parse(currentDay) - Date.parse(day));
-
-			if(hackDate.getDate() - 1 != 0){
+			if(gotStatsApp.utilities.compareDays(currentDay, gameDay) != 0){
 				// console.log("different day "+day+" "+ currentDay);
-				currentDay = day;
+				currentDay = gameDay;
 				gamesOnCurrentDay = 1;
 			}
 			else{
@@ -677,6 +737,24 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			gamesOnMostActiveDay: gamesOnMostActiveDay,
 			globalRankMsg : "Calculating..."
 		}
+
+		var rowsObject = [];
+		for(var i=recentDays.length-1; i>=0;i--){
+			rowsObject.push({ c: [
+				{v: recentDays[i].stringDate},
+				{v: recentDays[i].losses},
+				{v: recentDays[i].wins}
+			]});
+		}
+
+		$scope.statistics.chartData.recentActivity.data = {
+			"cols" : [
+				{id: "day", label: "Day", type: "string"},
+				{id: "losses", label: "Losses", type: "number"},
+				{id: "wins", label: "Wins", type: "number"}
+			],
+			"rows": rowsObject
+		};
 
 		if($rootScope.player.isRanked){
 			calculateGlobalRanking();
