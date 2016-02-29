@@ -32,11 +32,11 @@
 						<h4 class="text-center">Total</h4>
 						<div id="total_win_rate_chart" google-chart chart="statistics.chartData.totalWinRate"></div>
 					</div>
-					<div class="col-sm-4">
+					<div ng-show="!!statistics.chartData.blackWinRate.data" class="col-sm-4">
 						<h4 class="text-center">As Black</h4>
 						<div id="black_win_rate_chart" google-chart chart="statistics.chartData.blackWinRate"></div>
 					</div>
-					<div class="col-sm-4">
+					<div ng-show="!!statistics.chartData.whiteWinRate.data" class="col-sm-4">
 						<h4 class="text-center">As White</h4>
 						<div id="white_win_rate_chart" google-chart chart="statistics.chartData.whiteWinRate"></div>
 					</div>
@@ -61,11 +61,11 @@
 						<h4 class="text-center">Total</h4>
 						<div id="total_ranked_win_rate_chart" google-chart chart="statistics.chartData.totalRankedWinRate"></div>
 					</div>
-					<div class="col-sm-4">
+					<div ng-show="!!statistics.chartData.blackRankedWinRate.data" class="col-sm-4">
 						<h4 class="text-center">As Black</h4>
 						<div id="black_ranked_win_rate_chart" google-chart chart="statistics.chartData.blackRankedWinRate"></div>
 					</div>
-					<div class="col-sm-4">
+					<div ng-show="!!statistics.chartData.whiteRankedWinRate.data" class="col-sm-4">
 						<h4 class="text-center">As White</h4>
 						<div id="white_ranked_win_rate_chart" google-chart chart="statistics.chartData.whiteRankedWinRate"></div>
 					</div>
@@ -88,11 +88,11 @@
 						<h4 class="text-center">Total</h4>
 						<div id="total_unranked_win_rate_chart" google-chart chart="statistics.chartData.totalUnrankedWinRate"></div>
 					</div>
-					<div class="col-sm-4">
+					<div ng-show="!!statistics.chartData.blackUnrankedWinRate.data" class="col-sm-4">
 						<h4 class="text-center">As Black</h4>
 						<div id="black_unranked_win_rate_chart" google-chart chart="statistics.chartData.blackUnrankedWinRate"></div>
 					</div>
-					<div class="col-sm-4">
+					<div ng-show="!!statistics.chartData.whiteUnrankedWinRate.data" class="col-sm-4">
 						<h4 class="text-center">As White</h4>
 						<div id="white_unranked_win_rate_chart" google-chart chart="statistics.chartData.whiteUnrankedWinRate"></div>
 					</div>
@@ -111,21 +111,19 @@
 
 				<h3 class="text-center">Win/Loss ratio:</h3>
 				<div class="row">
-					<div class="col-sm-6">
+					<div ng-show="!!statistics.chartData.nineteenWinRate.data" class="col-sm-6">
 						<h4 class="text-center">19x19</h4>
 						<div id="19_win_rate_chart" google-chart chart="statistics.chartData.nineteenWinRate"></div>
 					</div>
-					<div class="col-sm-6">
+					<div ng-show="!!statistics.chartData.thirteenWinRate.data" class="col-sm-6">
 						<h4 class="text-center">13x13</h4>
 						<div id="13_win_rate_chart" google-chart chart="statistics.chartData.thirteenWinRate"></div>
 					</div>
-				</div>
-				<div class="row">
-					<div class="col-sm-6">
+					<div ng-show="!!statistics.chartData.nineWinRate.data" class="col-sm-6">
 						<h4 class="text-center">9x9</h4>
 						<div id="9_win_rate_chart" google-chart chart="statistics.chartData.nineWinRate"></div>
 					</div>
-					<div class="col-sm-6">
+					<div ng-show="!!statistics.chartData.otherSizesWinRate.data" class="col-sm-6">
 						<h4 class="text-center">Other sizes</h4>
 						<div id="other_sizes_win_rate_chart" google-chart chart="statistics.chartData.otherSizesWinRate"></div>
 					</div>
@@ -137,18 +135,35 @@
 			<h2 id="opponents_stats" class="text-center">Number of opponents faced: {{statistics.totalOpponents}}</h2>
 			<div ng-show="statistics.showOpponents">
 				<div class="row">
-					<div id="opponents_polars_chart" data-opponent-chart data-chart-data="opponents" class="opponent_chart col-sm-10 col-sm-offset-1">
-						<ul class="bar_legend">
-							<li><div>Weakest Opponent</div><span></span></li>
-							<li><div>Strongest Opponent</div><span></span></li>
+					<div class="col-xs-12">
+						<div id="opponents_polars_chart" data-opponent-chart data-chart-data="opponents" class="opponent_chart col-xs-8 col-xs-offset-2">
+							<ul class="bar_legend">
+								<li><div>Weakest Opponent</div><span></span></li>
+								<li><div>Strongest Opponent</div><span></span></li>
+							</ul>
+							<div class="bar_chart"></div>
+							<ul data-rank-ruler class="ruler"></ul>
+						</div>
+					</div>
+
+					<div class="col-xs-12">
+						<ul class="info_list">
+							<li>Most played with: <a target="_blank" href="http://online-go.com/user/view/{{statistics.chartData.opponents.mostPlayed.id}}/{{statistics.chartData.opponents.mostPlayed.username}}"><img class="img-20" data-ng-src="http://online-go.com/api/v1/players/{{statistics.chartData.opponents.mostPlayed.id}}/icon?size=32"></img> {{statistics.chartData.opponents.mostPlayed.username}} ({{statistics.chartData.opponents.mostPlayed.rank}})</a> in {{statistics.chartData.opponents.mostPlayed.games}} games.</li>
+							<li>Scored a triumphant victory against <a target="_blank" href="http://online-go.com/user/view/{{statistics.chartData.opponents.strongestDefeatedOpponent.id}}/{{statistics.chartData.opponents.strongestDefeatedOpponent.username}}"><img class="img-20" data-ng-src="http://online-go.com/api/v1/players/{{statistics.chartData.opponents.strongestDefeatedOpponent.id}}/icon?size=32"></img> {{statistics.chartData.opponents.strongestDefeatedOpponent.username}} ({{statistics.chartData.opponents.strongestDefeatedOpponent.rank}})</a> in <a href="http://online-go.com/game/{{statistics.chartData.opponents.strongestDefeatedOpponent.url}}" target="_blank">{{statistics.chartData.opponents.strongestDefeatedOpponent.outcome}} game</a>.</li>
+							<li>Average game per opponent: {{statistics.chartData.opponents.averageGamePerOpponent | number : 2}} games.</li>
 						</ul>
-						<div class="bar_chart"></div>
-						<ul data-rank-ruler class="ruler"></ul>
 					</div>
 				</div>
-				<ul class="spacing-top">
-					<li>Most played with: <a target="_blank" href="http://online-go.com/user/view/{{statistics.chartData.opponents.mostPlayed.id}}/{{statistics.chartData.opponents.mostPlayed.username}}"><img class="img-20" data-ng-src="http://online-go.com/api/v1/players/{{statistics.chartData.opponents.mostPlayed.id}}/icon?size=32"></img> {{statistics.chartData.opponents.mostPlayed.username}} ({{statistics.chartData.opponents.mostPlayed.rank}})</a> for {{statistics.chartData.opponents.mostPlayed.games}} games.</li>
-					<li>Average game per opponent: {{statistics.chartData.opponents.averageGamePerOpponent | number : 2}} games.</li>
+			</div>
+		</section>
+
+		<section class="stats_block">
+			<h2 id="misc_stats" class="text-center">Miscellaneous statistics</h2>
+			<div ng-show="statistics.showAllGames">
+				<ul class="info_list">
+					<li>Global ranking: <span ng-show="$root.player.isRanked">{{statistics.misc.globalRankMsg}}</span><span ng-hide="$root.player.isRanked">not available because this account is provisional.</span></li>
+					<li>Longest win streak: {{statistics.misc.longestStreak}} wins in a row!</li>
+					<li>Lifetime most active day: {{statistics.misc.mostActiveDay | date:'MMM d yyyy'}} with {{statistics.misc.gamesOnMostActiveDay}} games.</li>
 				</ul>
 			</div>
 		</section>

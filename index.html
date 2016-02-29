@@ -41,10 +41,9 @@
 
 					<div class="col-sm-3 sidebar" ng-controller="SidebarController">
 						<nav class="side_nav" data-spy="affix" data-offset-top="95">
-							<form name="searchForm" data-ng-submit="getUserStatistic()" novalidate class="row">
-									<div class="col-xs-7"><input name="id" data-ng-model="searchId" placeholder="Enter user ID"  type="text" class="form-control" aria-describedby="basic-addon2"></div>
+							<form name="searchForm" data-ng-submit="getUserStatistic()" class="row">
+									<div class="col-xs-7"><input name="id" data-ng-model="searchId" required placeholder="Enter user ID"  type="text" class="form-control" aria-describedby="basic-addon2"></div>
 									<div class="col-xs-5"><p><button class="btn btn-primary btn-block">g0t Stats?</button></p></div>
-
 							</form>
 
 							<small class="tip"><em>*Tip: mouse over a chart to see more info.</em></small>
@@ -55,7 +54,8 @@
 									<li><a href="#ranked_games_stats" ng-click="scrollTo('ranked_games_stats')" onclick="event.preventDefault();">Ranked games</a></li>
 									<li><a href="#unranked_games_stats" ng-click="scrollTo('unranked_games_stats')" onclick="event.preventDefault();">Unranked games</a></li>
 									<li><a href="#board_sizes_stats" ng-click="scrollTo('board_sizes_stats')" onclick="event.preventDefault();">Performance across board sizes</a></li>
-									<li><a href="#opponents_stats" ng-click="scrollTo('opponents_stats')" onclick="event.preventDefault();">Opponents</a></li>
+									<li><a href="#opponents_stats" ng-click="scrollTo('opponents_stats')" onclick="event.preventDefault();">Opponents statistics</a></li>
+									<li><a href="#misc_stats" ng-click="scrollTo('misc_stats')" onclick="event.preventDefault();">Miscellaneous statistics</a></li>
 								</ul>
 							</div>
 						</div>

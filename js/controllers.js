@@ -9,7 +9,6 @@ gotStatsControlers.controller('SidebarController',  ['$scope','$location',functi
 	$scope.getUserStatistic = function(){
 
 		if(!$scope.searchForm.$invalid){
-			$('html,body').animate({scrollTop: 0},'fast');
 			$location.path("/user/" + $scope.searchId);
 
 			$scope.searchId = "";
@@ -19,6 +18,8 @@ gotStatsControlers.controller('SidebarController',  ['$scope','$location',functi
 }]);
 
 gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScope', '$routeParams', '$http', function($scope, $rootScope, $routeParams, $http) {
+	$('html,body').animate({scrollTop: 0},'fast');
+
 	var that = this;
 	$rootScope.ready = false;
 	$rootScope.player = false;
@@ -30,13 +31,17 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 	$scope.connectionErrorCode = 200;
 	$scope.retryNumber = 0;
 
+	$scope.rankingRetryNumber = 0;
+
+	$scope.destroyed = false;
+
 	var chartConfigs = {
 		blackWhiteChart : {
 			type : "PieChart",
 			options : {
 				backgroundColor : "transparent",
-				colors : ["#000000", "#ffffff"],
-				pieSliceTextStyle : {color: "#dc3912"},
+				colors : ["#000000", "#f8f8ff"],
+				pieSliceTextStyle : {color: "#3366cc"},
 				legend : { position: "bottom", textStyle: {color: "#f8f8ff", fontName: "Helvetica Neue", fontSize: 14}},
 				chartArea : {top: 10}
 			}
@@ -50,6 +55,13 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			}
 		},
 	}
+
+	var globalSiteRankingData = {
+		rank : 0,
+		upperLim : 1,
+		lowerLim : 0,
+		currentPage : 1
+	};
 
 	$scope.statistics = {
 		allGames : [],
@@ -74,20 +86,29 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			otherSizesWinRate : jQuery.extend(true, {}, chartConfigs.colorChart)
 		},
 
+		misc : {
+			totalPlayers : 0
+		},
+
 		showAllGames : true,
 		showRankedGames : true,
 		showUnrankedGames : true,
 		showOpponents : true
 	};
 
-	var getAllGames = function(callBack, url){
-		if(url === undefined) url = "https://online-go.com/api/v1/players/" +$routeParams.userId+ "/games/?ended__isnull=false&annulled=false";
+	$scope.$on('$destroy', function () {
+	  $scope.destroyed = true;
+	});
 
+	var getAllGames = function(callBack, url){
+		if(url === undefined) url = "https://online-go.com/api/v1/players/" +$routeParams.userId+ "/games/?ended__isnull=false&annulled=false&ordering=-ended";
 
 		$http.get(url).then(
 			function(successData){
+				if($scope.destroyed) return;
+
 				$scope.connectionError = false;
-				retryNumber = 0;
+				$scope.retryNumber = 0;
 				$scope.loadingPage++;
 				$scope.statistics.allGames = $scope.statistics.allGames.concat(successData.data.results);
 				$scope.totalPages = Math.ceil(successData.data.count/25);
@@ -98,6 +119,8 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 					callBack();
 			},
 			function(errorData){
+				if($scope.destroyed) return;
+
 				// If you can't get what this part mean, it means I don't know shit about Angularjs
 				$scope.connectionError = true;
 				$scope.connectionErrorCode = errorData.status;
@@ -109,6 +132,76 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			}
 		);
 	};
+
+	var calculateGlobalRanking = function(){
+		var url = "https://online-go.com/api/v1/players?ordering=-rating&numProvisional__lt=1" + (globalSiteRankingData.currentPage > 1 ? ("&page="+globalSiteRankingData.currentPage) : "");
+
+		$http.get(url).then(
+			function(successData){
+				if($scope.destroyed) return;
+
+				$scope.rankingConnectionError = false;
+				$scope.rankingRetryNumber = 0;
+				$scope.statistics.misc.totalPlayers = successData.data.count;
+
+
+				if(parseFloat(successData.data.results[successData.data.results.length-1].rating) > parseFloat($scope.statistics.player.rating)) {
+					// console.log("UpperLim: " + globalSiteRankingData.currentPage + " Player rating: " + $scope.statistics.player.rating + " Comparision rating: "+successData.data.results[successData.data.results.length-1].rating);
+					globalSiteRankingData.upperLim = globalSiteRankingData.currentPage;
+				}
+				else if(parseFloat(successData.data.results[0].rating) < parseFloat($scope.statistics.player.rating)) {
+					// console.log("LowerLim: " + globalSiteRankingData.currentPage + " Player rating: " + $scope.statistics.player.rating + " Comparision rating: "+successData.data.results[0].rating);
+					globalSiteRankingData.lowerLim = globalSiteRankingData.currentPage;
+				}
+				else {
+					// console.log("Page hit: " + globalSiteRankingData.currentPage);
+					globalSiteRankingData.rank = (globalSiteRankingData.currentPage-1)*gotStatsApp.config.ogsResultPageSize;
+					for(var i=0;i<successData.data.results.length;i++){
+						globalSiteRankingData.rank++
+						if(successData.data.results[i].id == $rootScope.player.id){
+							$scope.statistics.misc.globalRankMsg = "#" + globalSiteRankingData.rank + " amongs all " + $scope.statistics.misc.totalPlayers + " ranked players."
+							return true;
+						}
+					}
+
+					$scope.statistics.misc.globalRankMsg = "Not found, probably because of an error. I really need this information, if possible please <a href='mailto:itsavavt@gmail.com'>send me a message</a> with the id of this particular player.";
+					return false;
+				}
+
+				var upperRank = globalSiteRankingData.upperLim*gotStatsApp.config.ogsResultPageSize;
+				var lowerRank = globalSiteRankingData.lowerLim != 0 ? ((globalSiteRankingData.lowerLim-1)*gotStatsApp.config.ogsResultPageSize + 1) : 0;
+
+				$scope.statistics.misc.globalRankMsg = "Below " + upperRank + (lowerRank != 0 ? (" and above "+lowerRank) : "" ) + "..." + ($scope.statistics.player.ranking < 20 ? " (It could take some time to get this information if you are DDK, please be patient)" : "");
+
+				if(globalSiteRankingData.lowerLim == 0){
+					globalSiteRankingData.currentPage+= 20;
+					calculateGlobalRanking();
+				}
+				else if(globalSiteRankingData.lowerLim != 0 && globalSiteRankingData.lowerLim - globalSiteRankingData.upperLim > 1){
+					globalSiteRankingData.currentPage = Math.floor((globalSiteRankingData.lowerLim + globalSiteRankingData.upperLim)/2);
+					calculateGlobalRanking();
+				}
+				else{
+					$scope.statistics.misc.globalRankMsg = "Not found, probably because of an error. I really need this information, if possible please <a href='mailto:itsavavt@gmail.com'>send me a message</a> with the id of this particular player.";
+				}
+			},
+			function(errorData){
+				// If you can't get what this part mean, it means I don't know shit about Angularjs
+				if($scope.destroyed) return;
+
+				var connectionErrorCode = errorData.status;
+				$scope.rankingRetryNumber+=1;
+
+				if($scope.retryNumber < 5){
+					setTimeout(function(){calculateGlobalRanking();}, $scope.rankingRetryNumber*$scope.rankingRetryNumber*1000);
+					$scope.statistics.misc.globalRankMsg = "Error connecting to OGS server with error code: "+connectionErrorCode+". Retrying in " + ($scope.rankingRetryNumber*$scope.rankingRetryNumber) + " seconds.";
+				}
+				else{
+					$scope.statistics.misc.globalRankMsg = "Error connecting to OGS server with error code: "+connectionErrorCode+". Please try again later.";
+				}
+			}
+		);
+	}
 
 	var onGameFetchingComplete = function(){
 		generateAllGamesData();
@@ -133,7 +226,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			$scope.statistics.showOpponents = false;
 		}
 
-		console.log($scope.statistics);
+		// console.log($scope.statistics);
 	}
 
 	/*
@@ -168,36 +261,45 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 				{c: [ {v: "White"}, {v: whiteGames} ]},
 			]
 		};
-		$scope.statistics.chartData.totalWinRate.data = {
-			"cols" : [
-				{id: "c", label: "Result", type: "string"},
-				{id: "g", label: "Games", type: "number"},
-			],
-			"rows": [
-				{c: [ {v: "Losses"}, {v: (whiteLosses + blackLosses)} ]},
-				{c: [ {v: "Wins"}, {v: (whiteGames - whiteLosses + blackGames - blackLosses)} ]},
-			]
-		};
-		$scope.statistics.chartData.blackWinRate.data = {
-			"cols" : [
-				{id: "c", label: "Result", type: "string"},
-				{id: "g", label: "Games", type: "number"},
-			],
-			"rows": [
-				{c: [ {v: "Losses"}, {v: blackLosses} ]},
-				{c: [ {v: "Wins"}, {v: (blackGames - blackLosses)} ]},
-			]
-		};
-		$scope.statistics.chartData.whiteWinRate.data = {
-			"cols" : [
-				{id: "c", label: "Result", type: "string"},
-				{id: "g", label: "Games", type: "number"},
-			],
-			"rows": [
-				{c: [ {v: "Losses"}, {v: whiteLosses} ]},
-				{c: [ {v: "Wins"}, {v: (whiteGames - whiteLosses)} ]},
-			]
-		};
+
+		if(whiteGames + blackGames > 0){
+			$scope.statistics.chartData.totalWinRate.data = {
+				"cols" : [
+					{id: "c", label: "Result", type: "string"},
+					{id: "g", label: "Games", type: "number"},
+				],
+				"rows": [
+					{c: [ {v: "Losses"}, {v: (whiteLosses + blackLosses)} ]},
+					{c: [ {v: "Wins"}, {v: (whiteGames - whiteLosses + blackGames - blackLosses)} ]},
+				]
+			};
+		}
+
+		if(blackGames > 0){
+			$scope.statistics.chartData.blackWinRate.data = {
+				"cols" : [
+					{id: "c", label: "Result", type: "string"},
+					{id: "g", label: "Games", type: "number"},
+				],
+				"rows": [
+					{c: [ {v: "Losses"}, {v: blackLosses} ]},
+					{c: [ {v: "Wins"}, {v: (blackGames - blackLosses)} ]},
+				]
+			};
+		}
+
+		if(whiteGames > 0){
+			$scope.statistics.chartData.whiteWinRate.data = {
+				"cols" : [
+					{id: "c", label: "Result", type: "string"},
+					{id: "g", label: "Games", type: "number"},
+				],
+				"rows": [
+					{c: [ {v: "Losses"}, {v: whiteLosses} ]},
+					{c: [ {v: "Wins"}, {v: (whiteGames - whiteLosses)} ]},
+				]
+			};
+		}
 	}
 
 	/*
@@ -234,36 +336,45 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 				{c: [ {v: "White"}, {v: rankedWhite} ]},
 			]
 		};
-		$scope.statistics.chartData.totalRankedWinRate.data = {
-			"cols" : [
-				{id: "c", label: "Result", type: "string"},
-				{id: "g", label: "Games", type: "number"},
-			],
-			"rows": [
-				{c: [ {v: "Losses"}, {v: (rankedBlackLosses + rankedWhiteLosses)} ]},
-				{c: [ {v: "Wins"}, {v: (rankedBlack - rankedBlackLosses + rankedWhite - rankedWhiteLosses)} ]},
-			]
-		};
-		$scope.statistics.chartData.blackRankedWinRate.data = {
-			"cols" : [
-				{id: "c", label: "Result", type: "string"},
-				{id: "g", label: "Games", type: "number"},
-			],
-			"rows": [
-				{c: [ {v: "Losses"}, {v: rankedBlackLosses} ]},
-				{c: [ {v: "Wins"}, {v: (rankedBlack - rankedBlackLosses)} ]},
-			]
-		};
-		$scope.statistics.chartData.whiteRankedWinRate.data = {
-			"cols" : [
-				{id: "c", label: "Result", type: "string"},
-				{id: "g", label: "Games", type: "number"},
-			],
-			"rows": [
-				{c: [ {v: "Losses"}, {v: rankedWhiteLosses} ]},
-				{c: [ {v: "Wins"}, {v: (rankedWhite - rankedWhiteLosses)} ]},
-			]
-		};
+
+		if(rankedBlack+rankedWhite > 0){
+			$scope.statistics.chartData.totalRankedWinRate.data = {
+				"cols" : [
+					{id: "c", label: "Result", type: "string"},
+					{id: "g", label: "Games", type: "number"},
+				],
+				"rows": [
+					{c: [ {v: "Losses"}, {v: (rankedBlackLosses + rankedWhiteLosses)} ]},
+					{c: [ {v: "Wins"}, {v: (rankedBlack - rankedBlackLosses + rankedWhite - rankedWhiteLosses)} ]},
+				]
+			};
+		}
+
+		if(rankedBlack > 0){
+			$scope.statistics.chartData.blackRankedWinRate.data = {
+				"cols" : [
+					{id: "c", label: "Result", type: "string"},
+					{id: "g", label: "Games", type: "number"},
+				],
+				"rows": [
+					{c: [ {v: "Losses"}, {v: rankedBlackLosses} ]},
+					{c: [ {v: "Wins"}, {v: (rankedBlack - rankedBlackLosses)} ]},
+				]
+			};
+		}
+
+		if(rankedWhite > 0){
+			$scope.statistics.chartData.whiteRankedWinRate.data = {
+				"cols" : [
+					{id: "c", label: "Result", type: "string"},
+					{id: "g", label: "Games", type: "number"},
+				],
+				"rows": [
+					{c: [ {v: "Losses"}, {v: rankedWhiteLosses} ]},
+					{c: [ {v: "Wins"}, {v: (rankedWhite - rankedWhiteLosses)} ]},
+				]
+			};
+		}
 	}
 
 	/*
@@ -300,36 +411,45 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 				{c: [ {v: "White"}, {v: unrankedWhite} ]},
 			]
 		};
-		$scope.statistics.chartData.totalUnrankedWinRate.data = {
-			"cols" : [
-				{id: "c", label: "Result", type: "string"},
-				{id: "g", label: "Games", type: "number"},
-			],
-			"rows": [
-				{c: [ {v: "Losses"}, {v: (unrankedBlackLosses + unrankedWhiteLosses)} ]},
-				{c: [ {v: "Wins"}, {v: (unrankedBlack - unrankedBlackLosses + unrankedWhite - unrankedWhiteLosses)} ]},
-			]
-		};
-		$scope.statistics.chartData.blackUnrankedWinRate.data = {
-			"cols" : [
-				{id: "c", label: "Result", type: "string"},
-				{id: "g", label: "Games", type: "number"},
-			],
-			"rows": [
-				{c: [ {v: "Losses"}, {v: unrankedBlackLosses} ]},
-				{c: [ {v: "Wins"}, {v: (unrankedBlack - unrankedBlackLosses)} ]},
-			]
-		};
-		$scope.statistics.chartData.whiteUnrankedWinRate.data = {
-			"cols" : [
-				{id: "c", label: "Result", type: "string"},
-				{id: "g", label: "Games", type: "number"},
-			],
-			"rows": [
-				{c: [ {v: "Losses"}, {v: unrankedWhiteLosses} ]},
-				{c: [ {v: "Wins"}, {v: (unrankedWhite - unrankedWhiteLosses)} ]},
-			]
-		};
+
+		if(unrankedBlack+unrankedWhite > 0){
+			$scope.statistics.chartData.totalUnrankedWinRate.data = {
+				"cols" : [
+					{id: "c", label: "Result", type: "string"},
+					{id: "g", label: "Games", type: "number"},
+				],
+				"rows": [
+					{c: [ {v: "Losses"}, {v: (unrankedBlackLosses + unrankedWhiteLosses)} ]},
+					{c: [ {v: "Wins"}, {v: (unrankedBlack - unrankedBlackLosses + unrankedWhite - unrankedWhiteLosses)} ]},
+				]
+			};
+		}
+
+		if(unrankedBlack > 0){
+			$scope.statistics.chartData.blackUnrankedWinRate.data = {
+				"cols" : [
+					{id: "c", label: "Result", type: "string"},
+					{id: "g", label: "Games", type: "number"},
+				],
+				"rows": [
+					{c: [ {v: "Losses"}, {v: unrankedBlackLosses} ]},
+					{c: [ {v: "Wins"}, {v: (unrankedBlack - unrankedBlackLosses)} ]},
+				]
+			};
+		}
+
+		if(unrankedWhite > 0){
+			$scope.statistics.chartData.whiteUnrankedWinRate.data = {
+				"cols" : [
+					{id: "c", label: "Result", type: "string"},
+					{id: "g", label: "Games", type: "number"},
+				],
+				"rows": [
+					{c: [ {v: "Losses"}, {v: unrankedWhiteLosses} ]},
+					{c: [ {v: "Wins"}, {v: (unrankedWhite - unrankedWhiteLosses)} ]},
+				]
+			};
+		}
 	}
 
 	/*
@@ -384,46 +504,58 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
  				{c: [ {v: "Other Sizes"}, {v: otherGames} ]},
  			]
  		};
- 		$scope.statistics.chartData.nineteenWinRate.data = {
- 			"cols" : [
- 				{id: "c", label: "Result", type: "string"},
- 				{id: "g", label: "Games", type: "number"},
- 			],
- 			"rows": [
- 				{c: [ {v: "Losses"}, {v: nineteenLosses} ]},
- 				{c: [ {v: "Wins"}, {v: (nineteenGames - nineteenLosses) } ]},
- 			]
- 		};
- 		$scope.statistics.chartData.thirteenWinRate.data = {
- 			"cols" : [
- 				{id: "c", label: "Result", type: "string"},
- 				{id: "g", label: "Games", type: "number"},
- 			],
- 			"rows": [
- 				{c: [ {v: "Losses"}, {v: thirteenLosses} ]},
- 				{c: [ {v: "Wins"}, {v: (thirteenGames - thirteenLosses)} ]},
- 			]
- 		};
- 		$scope.statistics.chartData.nineWinRate.data = {
- 			"cols" : [
- 				{id: "c", label: "Result", type: "string"},
- 				{id: "g", label: "Games", type: "number"},
- 			],
- 			"rows": [
- 				{c: [ {v: "Losses"}, {v: nineLosses} ]},
- 				{c: [ {v: "Wins"}, {v: (nineGames - nineLosses)} ]},
- 			]
- 		};
-		$scope.statistics.chartData.otherSizesWinRate.data = {
- 			"cols" : [
- 				{id: "c", label: "Result", type: "string"},
- 				{id: "g", label: "Games", type: "number"},
- 			],
- 			"rows": [
- 				{c: [ {v: "Losses"}, {v: otherLosses} ]},
- 				{c: [ {v: "Wins"}, {v: (otherGames - otherLosses)} ]},
- 			]
- 		};
+
+		if(nineteenGames > 0){
+			$scope.statistics.chartData.nineteenWinRate.data = {
+	 			"cols" : [
+	 				{id: "c", label: "Result", type: "string"},
+	 				{id: "g", label: "Games", type: "number"},
+	 			],
+	 			"rows": [
+	 				{c: [ {v: "Losses"}, {v: nineteenLosses} ]},
+	 				{c: [ {v: "Wins"}, {v: (nineteenGames - nineteenLosses) } ]},
+	 			]
+	 		};
+		}
+
+		if(thirteenGames > 0){
+			$scope.statistics.chartData.thirteenWinRate.data = {
+	 			"cols" : [
+	 				{id: "c", label: "Result", type: "string"},
+	 				{id: "g", label: "Games", type: "number"},
+	 			],
+	 			"rows": [
+	 				{c: [ {v: "Losses"}, {v: thirteenLosses} ]},
+	 				{c: [ {v: "Wins"}, {v: (thirteenGames - thirteenLosses)} ]},
+	 			]
+	 		};
+		}
+
+		if(nineGames > 0){
+			$scope.statistics.chartData.nineWinRate.data = {
+	 			"cols" : [
+	 				{id: "c", label: "Result", type: "string"},
+	 				{id: "g", label: "Games", type: "number"},
+	 			],
+	 			"rows": [
+	 				{c: [ {v: "Losses"}, {v: nineLosses} ]},
+	 				{c: [ {v: "Wins"}, {v: (nineGames - nineLosses)} ]},
+	 			]
+	 		};
+		}
+
+		if(otherGames > 0){
+			$scope.statistics.chartData.otherSizesWinRate.data = {
+	 			"cols" : [
+	 				{id: "c", label: "Result", type: "string"},
+	 				{id: "g", label: "Games", type: "number"},
+	 			],
+	 			"rows": [
+	 				{c: [ {v: "Losses"}, {v: otherLosses} ]},
+	 				{c: [ {v: "Wins"}, {v: (otherGames - otherLosses)} ]},
+	 			]
+	 		};
+		}
  	}
 
 	/*
@@ -431,16 +563,37 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 	 */
 	var generateOpponentsData = function(){
 		var game, opponent;
-		var opponents = [], numberOpponents = 0, weakestOpp = {rank: 70}, strongestOpp = { rank : 0}, mostPlayed = { games : 0};
+		var opponents = [], numberOpponents = 0;
+		var weakestOpp = {rank: 70}, strongestOpp = { rank : 0}, mostPlayed = { games : 0}, strongestDefeatedOpponent = { rank : 0};
 
 		for(var i=0;i<$scope.statistics.allGames.length; i++){
 			game = $scope.statistics.allGames[i];
 
 			if(game.players.black.id == $rootScope.player.id){
 				opponent = game.players.white;
+
+				if(game.white_lost && opponent.ranking > strongestDefeatedOpponent.rank){
+					strongestDefeatedOpponent = {
+						id: opponent.id,
+						username: opponent.username,
+						rank : opponent.ranking,
+						url : game.related.detail.split("games/")[1],
+						outcome : (game.outcome == "Resignation" ? "a bloody" : "an intense")
+					};
+				}
 			}
 			else{
 				opponent = game.players.black;
+
+				if(game.black_lost && opponent.ranking > strongestDefeatedOpponent.rank){
+					strongestDefeatedOpponent = {
+						id: opponent.id,
+						username: opponent.username,
+						rank : opponent.ranking,
+						url : game.related.detail.split("games/")[1],
+						outcome : (game.outcome == "Resignation" ? "a bloody" : "an intense")
+					};
+				}
 			}
 
 			if(!opponents[opponent.id]){
@@ -457,22 +610,78 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 
 		for (var k in opponents) {
 			if (opponents.hasOwnProperty(k)) {
-			   ++numberOpponents;
+			   numberOpponents++;
 			}
 		}
+
+		strongestDefeatedOpponent.rank = gotStatsApp.utilities.convertRankToDisplay(strongestDefeatedOpponent.rank);
 
 		$scope.statistics.totalOpponents = numberOpponents;
 
 		$scope.statistics.chartData.opponents = {
 			strongest				: strongestOpp,
 			weakest					: weakestOpp,
-			mostPlayed				: mostPlayed,
+			mostPlayed			: mostPlayed,
+			strongestDefeatedOpponent : strongestDefeatedOpponent,
 			averageGamePerOpponent	: ($scope.statistics.allGames.length / numberOpponents)
 		}
 	}
 
-	var generateMiscData = function(){}
+	var generateMiscData = function(){
+		var longestStreak = 0, currentStreak = 0,
+				gamesOnMostActiveDay = 0, gamesOnCurrentDay = 0;
+		var mostActiveDay, currentDay = new Date();
+		var game;
 
+		currentDay.setHours(0,0,0,0);
+
+		for(var i=0;i<$scope.statistics.allGames.length; i++){
+			game = $scope.statistics.allGames[i];
+
+			// Winning streak
+			if( (game.players.black.id == $rootScope.player.id && game.white_lost)
+				||(game.players.white.id == $rootScope.player.id && game.black_lost) ){
+				currentStreak++;
+				if(currentStreak > longestStreak){
+					longestStreak = currentStreak;
+				}
+			}
+			else{
+				currentStreak = 0;
+			}
+
+			// Day by day
+			var day = new Date(game.ended);
+			day.setHours(0,0,0,0);
+			var hackDate = new Date(Date.parse(currentDay) - Date.parse(day));
+
+			if(hackDate.getDate() - 1 != 0){
+				// console.log("different day "+day+" "+ currentDay);
+				currentDay = day;
+				gamesOnCurrentDay = 1;
+			}
+			else{
+				gamesOnCurrentDay++;
+				// console.log("same day "+day+" "+ currentDay + "_" + gamesOnCurrentDay);
+			}
+
+			if(gamesOnCurrentDay > gamesOnMostActiveDay){
+				mostActiveDay = currentDay;
+				gamesOnMostActiveDay = gamesOnCurrentDay;
+			}
+		}
+
+		$scope.statistics.misc = {
+			longestStreak : longestStreak,
+			mostActiveDay : mostActiveDay,
+			gamesOnMostActiveDay: gamesOnMostActiveDay,
+			globalRankMsg : "Calculating..."
+		}
+
+		if($rootScope.player.isRanked){
+			calculateGlobalRanking();
+		}
+	}
 
 	/*
 	 * INITIALIZATION
@@ -480,7 +689,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 
 	$http.get("https://online-go.com/api/v1/players/" + $routeParams.userId).success(function(data){
 		$scope.statistics.player = data;
-		$rootScope.player = {username : data.username, rank : gotStatsApp.utilities.convertRankToDisplay(data.ranking), id: data.id};
+		$rootScope.player = {username : data.username, rank : gotStatsApp.utilities.convertRankToDisplay(data.ranking), id: data.id, isRanked : (data.provisional_games_left < 1)};
 	});
 
 	getAllGames(onGameFetchingComplete);

@@ -1,10 +1,10 @@
 gotStatsApp.init = function(){
-
 }
 
 /* Global Configs */
 gotStatsApp.config = {
-	ogsUrl : "http://online-go.com"
+	ogsUrl : "http://online-go.com",
+	ogsResultPageSize: 25
 }
 
 /* Utilities functions */

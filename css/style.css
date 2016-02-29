@@ -14,6 +14,13 @@ small, h4, h2 small{
 	color: #ababab;
 }
 
+a:active,
+a:focus,
+button:active,
+button:focus{
+	outline: 0 none;
+}
+
 [google-chart]{
 	min-height: 250px;
 }
@@ -34,8 +41,13 @@ h3{
 .error{
 	color: red;
 }
-.spacing-top{
-	margin-top: 20px;
+
+.info_list{
+	margin-top: 40px;
+}
+
+.info_list li{
+	margin-bottom: 10px;
 }
 
 .img-20{
