@@ -17,6 +17,8 @@
 	</div>
 
 	<div class="invisible" ng-class="{totally_visible: $root.ready}">
+
+		<!-- ALL GAMES CHARTS -->
 		<section class="stats_block">
 			<h2 id="total_games_stats" class="text-center">Total games played on OGS: {{statistics.totalGames}}</h2>
 			<div ng-show="statistics.showAllGames">
@@ -46,6 +48,7 @@
 			</div>
 		</section>
 
+		<!-- RANKED GAMES CHARTS -->
 		<section class="stats_block">
 			<h2 id="ranked_games_stats" class="text-center">Ranked games: {{statistics.totalRankedGames}}</h2>
 			<div ng-show="statistics.showRankedGames">
@@ -73,6 +76,7 @@
 			</div>
 		</section>
 
+		<!-- UNRANKED GAMES CHARTS -->
 		<section class="stats_block">
 			<h2 id="unranked_games_stats" class="text-center">Unranked games: {{statistics.totalUnrankedGames}}</h2>
 			<div ng-show="statistics.showUnrankedGames">
@@ -100,6 +104,7 @@
 			</div>
 		</section>
 
+		<!-- BOARD SIZES CHARTS -->
 		<section class="stats_block">
 			<h2 id="board_sizes_stats" class="text-center">Performance across board sizes</h2>
 			<div ng-show="statistics.showAllGames">
@@ -131,6 +136,35 @@
 			</div>
 		</section>
 
+		<!-- TIME SETTINGS CHARTS -->
+		<section class="stats_block">
+			<h2 id="time_settings_stats" class="text-center">Performance across time settings</h2>
+			<div ng-show="statistics.showAllGames">
+				<div class="row">
+					<div class="col-sm-offset-2 col-sm-8">
+						<div id="all_time_settings_chart" google-chart chart="statistics.chartData.allTimeSettings"></div>
+					</div>
+				</div>
+
+				<h3 class="text-center">Win/Loss ratio:</h3>
+				<div class="row">
+					<div ng-show="!!statistics.chartData.blitzWinRate.data" class="col-sm-4">
+						<h4 class="text-center">Blitz</h4>
+						<div id="blitz_win_rate_chart" google-chart chart="statistics.chartData.blitzWinRate"></div>
+					</div>
+					<div ng-show="!!statistics.chartData.liveWinRate.data" class="col-sm-4">
+						<h4 class="text-center">Live</h4>
+						<div id="live_win_rate_chart" google-chart chart="statistics.chartData.liveWinRate"></div>
+					</div>
+					<div ng-show="!!statistics.chartData.correspondenceWinRate.data" class="col-sm-4">
+						<h4 class="text-center">Correspondence</h4>
+						<div id="correspondence_win_rate_chart" google-chart chart="statistics.chartData.correspondenceWinRate"></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- OPPONENTS CHARTS -->
 		<section class="stats_block">
 			<h2 id="opponents_stats" class="text-center">Number of opponents faced: {{statistics.totalOpponents}}</h2>
 			<div ng-show="statistics.showOpponents">
@@ -157,6 +191,7 @@
 			</div>
 		</section>
 
+		<!-- MISC INFO -->
 		<section class="stats_block">
 			<h2 id="misc_stats" class="text-center">Miscellaneous statistics</h2>
 			<div ng-show="statistics.showAllGames">

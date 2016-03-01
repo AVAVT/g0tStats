@@ -17,6 +17,8 @@ gotStatsApp.utilities = {
 	},
 
 	compareDays : function(day1, day2){
+		/* Copa pasta I don't even know if there's any bug here */
+
 		// Copy date parts of the timestamps, discarding the time parts.
 		var two = new Date(day1.getFullYear(), day1.getMonth(), day1.getDate());
 		var one = new Date(day2.getFullYear(), day2.getMonth(), day2.getDate());

@@ -84,19 +84,28 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			totalWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			blackWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			whiteWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+
 			totalRankedGames : jQuery.extend(true, {}, chartConfigs.blackWhiteChart),
 			totalRankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			blackRankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			whiteRankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+
 			totalUnrankedGames : jQuery.extend(true, {}, chartConfigs.blackWhiteChart),
 			totalUnrankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			blackUnrankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			whiteUnrankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+
 			allBoardSizes : jQuery.extend(true, {}, chartConfigs.colorChart),
 			nineteenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			thirteenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			nineWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			otherSizesWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+
+			allTimeSettings : jQuery.extend(true, {}, chartConfigs.colorChart),
+			blitzWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			liveWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			correspondenceWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+
 			recentActivity : jQuery.extend(true, {}, chartConfigs.columnChart)
 		},
 
@@ -222,6 +231,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 		generateRankedGamesData();
 		generateUnrankedGamesData();
 		generateBoardSizesData();
+		generateTimeSettingsData();
 		generateOpponentsData();
 		generateMiscData();
 
@@ -572,6 +582,87 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 		}
  	}
 
+	/*
+	 *	TIME SETTINGS STATISTICS
+	 */
+	var generateTimeSettingsData = function(){
+		var game;
+		var blitzGames = 0, liveGames = 0, correspondenceGames = 0,
+				blitzLosses = 0, liveLosses = 0, correspondenceLosses = 0;
+
+		for(var i=0;i<$scope.statistics.allGames.length; i++){
+			game = $scope.statistics.allGames[i];
+			if(game.time_per_move < 20){
+				blitzGames++;
+				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
+						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+					blitzLosses++;
+				}
+			}
+			else if(game.time_per_move > 10800){
+				correspondenceGames++;
+				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
+						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+					correspondenceLosses++;
+				}
+			}
+			else{
+				liveGames++;
+				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
+						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+					liveLosses++;
+				}
+			}
+		}
+
+		$scope.statistics.chartData.allTimeSettings.data = {
+ 			"cols" : [
+ 				{id: "c", label: "Type", type: "string"},
+ 				{id: "g", label: "Games", type: "number"},
+ 			],
+ 			"rows": [
+ 				{c: [ {v: "Blitz"}, {v: blitzGames} ]},
+ 				{c: [ {v: "Live"}, {v: liveGames} ]},
+				{c: [ {v: "Correspondence"}, {v: correspondenceGames} ]}
+ 			]
+ 		};
+		if(blitzGames > 0){
+			$scope.statistics.chartData.blitzWinRate.data = {
+	 			"cols" : [
+	 				{id: "c", label: "Result", type: "string"},
+	 				{id: "g", label: "Games", type: "number"},
+	 			],
+	 			"rows": [
+	 				{c: [ {v: "Losses"}, {v: blitzLosses} ]},
+	 				{c: [ {v: "Wins"}, {v: (blitzGames - blitzLosses) } ]},
+	 			]
+	 		};
+		}
+		if(liveGames > 0){
+			$scope.statistics.chartData.liveWinRate.data = {
+	 			"cols" : [
+	 				{id: "c", label: "Result", type: "string"},
+	 				{id: "g", label: "Games", type: "number"},
+	 			],
+	 			"rows": [
+	 				{c: [ {v: "Losses"}, {v: liveLosses} ]},
+	 				{c: [ {v: "Wins"}, {v: (liveGames - liveLosses) } ]},
+	 			]
+	 		};
+		}
+		if(correspondenceGames > 0){
+			$scope.statistics.chartData.correspondenceWinRate.data = {
+	 			"cols" : [
+	 				{id: "c", label: "Result", type: "string"},
+	 				{id: "g", label: "Games", type: "number"},
+	 			],
+	 			"rows": [
+	 				{c: [ {v: "Losses"}, {v: correspondenceLosses} ]},
+	 				{c: [ {v: "Wins"}, {v: (correspondenceGames - correspondenceLosses) } ]},
+	 			]
+	 		};
+		}
+	}
 	/*
 	 *	OPPONENTS STATISTICS
 	 */
