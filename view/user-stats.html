@@ -24,7 +24,6 @@
 					<div class="col-sm-offset-3 col-sm-6">
 						<div id="total_games_chart" google-chart chart="statistics.chartData.totalGames"></div>
 					</div>
-					<em ng-show="statistics.lost50" class='col-sm-12 gratz'>Congrats, <a target='_blank' href='http://senseis.xmp.net/?page=LoseYourFirst50GamesAsQuicklyAsPossible'>you lost your first 50 games</a>!</em>
 				</div>
 
 				<h3 class="text-center">Win/Loss ratio</h3>
@@ -49,6 +48,12 @@
 						<div id="outcome_chart" google-chart chart="statistics.chartData.allGamesOutcome"></div>
 					</div>
 				</div>
+				<div ng-show="statistics.lost50" class="row">
+					<div class="col-xs-12">
+						<p class='gratz'>Congratulations, <a target='_blank' href='http://senseis.xmp.net/?page=LoseYourFirst50GamesAsQuicklyAsPossible'>you have lost your first 50 games</a>!</p>
+					</div>
+				</div>
+
 			</div>
 		</section>
 

@@ -402,6 +402,10 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 
 		$scope.statistics.totalGames = $scope.statistics.allGames.length;
 
+		if(blackLosses > 50){
+			$scope.statistics.lost50 = true;
+		}
+
 		$scope.statistics.chartData.totalGames.data = {
 			"cols" : [
 				{id: "c", label: "Color", type: "string"},
