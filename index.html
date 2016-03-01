@@ -47,7 +47,7 @@
 									<div class="col-xs-5"><p><button class="btn btn-primary btn-block">g0t Stats?</button></p></div>
 							</form>
 
-							<small class="tip"><em>*Tip: mouse over or tap on a chart to see more info.</em></small>
+							<small class="tip"><em>*Tip: mouse over/tap on a chart to see more info.</em></small>
 
 							<div class="navi hidden-sm hidden-xs" ng-hide="!$root.ready">
 								<hr>
@@ -61,15 +61,16 @@
 									<li><a href="#misc_stats" ng-click="scrollTo('misc_stats')" onclick="event.preventDefault();">Miscellaneous statistics</a></li>
 								</ul>
 								<hr>
-								<div ng-show="promptSaveUserData">
-									<p>Save this user's data for faster query?</p>
+								<div ng-show="!$root.userDataSaved">
+									<p>Is this player you?</p>
 									<p>
 										<button ng-click="saveUserData()" class="btn btn-primary">Yes</button>
 										<button onclick="alert('Ok.')" class="btn btn-info">No</button>
 									</p>
 								</div>
-								<div ng-show="!promptSaveUserData">
-									<span class="glyphicon glyphicon-check" aria-hidden="true"></span> Saved.
+								<div ng-show="$root.userDataSaved">
+									<p><span class="glyphicon glyphicon-check" aria-hidden="true"></span> Data saved for faster access in the future.</p>
+									<p><small><em>Only 1 user can be saved because of storage reasons.</em></small></p>
 								</div>
 							</div>
 						</div>

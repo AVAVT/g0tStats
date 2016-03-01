@@ -1,7 +1,6 @@
 ﻿var gotStatsControlers = angular.module('gotStatsControlers', ["googlechart", "ngSanitize"]);
 
 gotStatsControlers.controller('SidebarController',  ['$scope','$rootScope', '$location',function($scope, $rootScope, $location) {
-	$scope.promptSaveUserData = true;
 
 	$scope.scrollTo = function(hash){
 		// because fuck angular and all this databinding bullshit that's why
@@ -15,12 +14,11 @@ gotStatsControlers.controller('SidebarController',  ['$scope','$rootScope', '$lo
 
 			$scope.searchId = "";
 			$scope.searchForm.$setPristine();
-			$scope.promptSaveUserData = true;
 		}
 	}
+
 	$scope.saveUserData = function(){
 		$rootScope.$emit('saveUserEvent');
-		$scope.promptSaveUserData = false;
 	}
 }]);
 
@@ -195,6 +193,13 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 			localData = undefined;
 		}
 
+		if(!localData){
+			$rootScope.userDataSaved = false;
+		}
+		else{
+			$rootScope.userDataSaved = true;
+		}
+
 
 		$http.get(url).then(
 			function(successData){
@@ -225,9 +230,11 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 
 				if(!completedWithLocalStorage && successData.data.next != null)
 					getAllGames(callBack, successData.data.next.replace("http://", "https://"));
-				else
+				else{
+					// Finishes querying
+					if(!!localData) saveUserData();
 					callBack();
-
+				}
 			},
 			function(errorData){
 				if($scope.destroyed) return;
@@ -348,7 +355,9 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 
 	var saveUserData = function(){
 		console.log("Saving user data...");
+		localStorage.clear();
 		localStorage.setItem('ogsUserData_'+$scope.statistics.player.id, JSON.stringify($scope.statistics.allGames));
+		$rootScope.userDataSaved = true;
 	}
 
 	/*
