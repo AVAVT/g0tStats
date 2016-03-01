@@ -50,6 +50,7 @@
 							<small class="tip"><em>*Tip: mouse over or tap on a chart to see more info.</em></small>
 
 							<div class="navi hidden-sm hidden-xs" ng-hide="!$root.ready">
+								<hr>
 								<ul class="nav navi_list">
 									<li><a href="#total_games_stats" ng-click="scrollTo('total_games_stats')" onclick="event.preventDefault();">Total games played on OGS</a></li>
 									<li><a href="#ranked_games_stats" ng-click="scrollTo('ranked_games_stats')" onclick="event.preventDefault();">Ranked games</a></li>
@@ -59,6 +60,17 @@
 									<li><a href="#opponents_stats" ng-click="scrollTo('opponents_stats')" onclick="event.preventDefault();">Opponents statistics</a></li>
 									<li><a href="#misc_stats" ng-click="scrollTo('misc_stats')" onclick="event.preventDefault();">Miscellaneous statistics</a></li>
 								</ul>
+								<hr>
+								<div ng-show="promptSaveUserData">
+									<p>Save this user's data for faster query?</p>
+									<p>
+										<button ng-click="saveUserData()" class="btn btn-primary">Yes</button>
+										<button onclick="alert('Ok.')" class="btn btn-info">No</button>
+									</p>
+								</div>
+								<div ng-show="!promptSaveUserData">
+									<span class="glyphicon glyphicon-check" aria-hidden="true"></span> Saved.
+								</div>
 							</div>
 						</div>
 				</nav>

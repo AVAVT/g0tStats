@@ -1,6 +1,8 @@
 ﻿var gotStatsControlers = angular.module('gotStatsControlers', ["googlechart", "ngSanitize"]);
 
-gotStatsControlers.controller('SidebarController',  ['$scope','$location',function($scope, $location) {
+gotStatsControlers.controller('SidebarController',  ['$scope','$rootScope', '$location',function($scope, $rootScope, $location) {
+	$scope.promptSaveUserData = true;
+
 	$scope.scrollTo = function(hash){
 		// because fuck angular and all this databinding bullshit that's why
     $('html,body').animate({scrollTop: $("#"+hash).offset().top},'fast');
@@ -9,18 +11,25 @@ gotStatsControlers.controller('SidebarController',  ['$scope','$location',functi
 	$scope.getUserStatistic = function(){
 
 		if(!$scope.searchForm.$invalid){
-			$location.path("/user/" + $scope.searchId);
+			$location.path("/user/" + $scope.searchId.trim());
 
 			$scope.searchId = "";
 			$scope.searchForm.$setPristine();
+			$scope.promptSaveUserData = true;
 		}
+	}
+	$scope.saveUserData = function(){
+		$rootScope.$emit('saveUserEvent');
+		$scope.promptSaveUserData = false;
 	}
 }]);
 
-gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScope', '$routeParams', '$http', '$filter', function($scope, $rootScope, $routeParams, $http, $filter) {
+gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope', '$routeParams', '$http', '$filter', function($scope, $rootScope, $routeParams, $http, $filter) {
 	$('html,body').animate({scrollTop: 0},'fast');
 
 	var that = this;
+	var unbindSaveEventWatching = undefined;
+
 	$rootScope.ready = false;
 	$rootScope.player = false;
 
@@ -134,6 +143,9 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 
 	$scope.$on('$destroy', function () {
 	  $scope.destroyed = true;
+		if(unbindSaveEventWatching){
+			unbindSaveEventWatching();
+		}
 	});
 
 	var init = function(){
@@ -175,6 +187,15 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 	var getAllGames = function(callBack, url){
 		if(url === undefined) url = "https://online-go.com/api/v1/players/" +$scope.statistics.player.id+ "/games/?ended__isnull=false&annulled=false&ordering=-ended";
 
+		var localData;
+		try{
+			localData = JSON.parse(localStorage.getItem('ogsUserData_'+$scope.statistics.player.id));
+		}
+		catch(e){
+			localData = undefined;
+		}
+
+
 		$http.get(url).then(
 			function(successData){
 				if($scope.destroyed) return;
@@ -182,13 +203,31 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 				$scope.connectionError = false;
 				$scope.retryNumber = 0;
 				$scope.loadingPage++;
-				$scope.statistics.allGames = $scope.statistics.allGames.concat(successData.data.results);
 				$scope.totalPages = Math.ceil(successData.data.count/25);
 
-				if(successData.data.next != null)
+				var completedWithLocalStorage = false;
+
+				if(!localData){
+					$scope.statistics.allGames = $scope.statistics.allGames.concat(successData.data.results);
+				}
+				else{
+					for(var i=0;i<successData.data.results.length;i++){
+						if(successData.data.results[i].id == localData[0].id){
+							$scope.statistics.allGames = $scope.statistics.allGames.concat(localData);
+							completedWithLocalStorage = true;
+							break;
+						}
+						else{
+							$scope.statistics.allGames.push(successData.data.results[i]);
+						}
+					}
+				}
+
+				if(!completedWithLocalStorage && successData.data.next != null)
 					getAllGames(callBack, successData.data.next.replace("http://", "https://"));
 				else
 					callBack();
+
 			},
 			function(errorData){
 				if($scope.destroyed) return;
@@ -302,7 +341,14 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			$scope.statistics.showOpponents = false;
 		}
 
+		unbindSaveEventWatching = $rootScope.$on('saveUserEvent', saveUserData);
+
 		// console.log($scope.statistics);
+	}
+
+	var saveUserData = function(){
+		console.log("Saving user data...");
+		localStorage.setItem('ogsUserData_'+$scope.statistics.player.id, JSON.stringify($scope.statistics.allGames));
 	}
 
 	/*

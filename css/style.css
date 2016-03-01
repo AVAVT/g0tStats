@@ -266,11 +266,6 @@ h3{
 	margin-left: -1px;
 }
 
-.navi{
-	margin-top: 20px;
-	padding-top: 20px;
-	border-top: 1px solid #cccccc;
-}
 .navi_list{
 	padding: 0;
 	margin: 0;
@@ -304,6 +299,9 @@ h3{
 	outline: 0 none;
 }
 
+.glyphicon.glyphicon-check{
+	color: #05a658;
+}
 
 .instruction{
 	margin-top: 23px;
