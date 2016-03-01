@@ -646,10 +646,63 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 		var longestStreak = 0, currentStreak = 0,
 				gamesOnMostActiveDay = 0, gamesOnCurrentDay = 0;
 
-		var mostActiveDay, currentDay = new Date(), today = new Date();
-		today.setHours(0,0,0,0);
+		var mostActiveDay, currentDay = new Date();
 		currentDay.setHours(0,0,0,0);
 
+
+		for(var i=0;i<$scope.statistics.allGames.length; i++){
+			game = $scope.statistics.allGames[i];
+
+			// Winning streak
+			if( (game.players.black.id == $rootScope.player.id && game.white_lost)
+				||(game.players.white.id == $rootScope.player.id && game.black_lost) ){
+
+				currentStreak++;
+				if(currentStreak > longestStreak){
+					longestStreak = currentStreak;
+				}
+			}
+			else{
+				currentStreak = 0;
+			}
+
+
+			var gameDay = new Date(game.ended);
+			gameDay.setHours(0,0,0,0);
+			// Day by day
+			if(gotStatsApp.utilities.compareDays(currentDay, gameDay) != 0){
+				// console.log("different day "+gameDay+" "+ currentDay);
+				currentDay = gameDay;
+				gamesOnCurrentDay = 1;
+			}
+			else{
+				gamesOnCurrentDay++;
+				// console.log("same day "+gameDay+" "+ currentDay + "_" + gamesOnCurrentDay);
+			}
+
+			if(gamesOnCurrentDay > gamesOnMostActiveDay){
+				mostActiveDay = currentDay;
+				gamesOnMostActiveDay = gamesOnCurrentDay;
+			}
+		}
+
+		$scope.statistics.misc = {
+			longestStreak : longestStreak,
+			mostActiveDay : mostActiveDay,
+			gamesOnMostActiveDay: gamesOnMostActiveDay,
+			globalRankMsg : "Calculating..."
+		}
+
+		generateRecentActivityChart();
+		if($rootScope.player.isRanked){
+			calculateGlobalRanking();
+		}
+	}
+
+	var generateRecentActivityChart = function(){
+		var game;
+		var today = new Date();
+		today.setHours(0,0,0,0);
 
 		var recentDays = [];
 		var isRecentgame = true;
@@ -694,48 +747,18 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 						}
 						recentDays.push({date: gameDay, stringDate: stringDate, wins: 0, losses: 0});
 					}
-
 				}
 			}
 
-			// Winning streak
+			if(!isRecentgame) break;
+
 			if( (game.players.black.id == $rootScope.player.id && game.white_lost)
 				||(game.players.white.id == $rootScope.player.id && game.black_lost) ){
-
-				currentStreak++;
-				if(isRecentgame) recentDays[recentDays.length-1].wins++;
-
-				if(currentStreak > longestStreak){
-					longestStreak = currentStreak;
-				}
+					recentDays[recentDays.length-1].wins++;
 			}
 			else{
-				currentStreak = 0;
-				if(isRecentgame) recentDays[recentDays.length-1].losses++;
+				recentDays[recentDays.length-1].losses++;
 			}
-
-			// Day by day
-			if(gotStatsApp.utilities.compareDays(currentDay, gameDay) != 0){
-				// console.log("different day "+day+" "+ currentDay);
-				currentDay = gameDay;
-				gamesOnCurrentDay = 1;
-			}
-			else{
-				gamesOnCurrentDay++;
-				// console.log("same day "+day+" "+ currentDay + "_" + gamesOnCurrentDay);
-			}
-
-			if(gamesOnCurrentDay > gamesOnMostActiveDay){
-				mostActiveDay = currentDay;
-				gamesOnMostActiveDay = gamesOnCurrentDay;
-			}
-		}
-
-		$scope.statistics.misc = {
-			longestStreak : longestStreak,
-			mostActiveDay : mostActiveDay,
-			gamesOnMostActiveDay: gamesOnMostActiveDay,
-			globalRankMsg : "Calculating..."
 		}
 
 		var rowsObject = [];
@@ -755,10 +778,6 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			],
 			"rows": rowsObject
 		};
-
-		if($rootScope.player.isRanked){
-			calculateGlobalRanking();
-		}
 	}
 
 	/*
