@@ -26,9 +26,10 @@
 					<div class="col-sm-offset-3 col-sm-6">
 						<div id="total_games_chart" google-chart chart="statistics.chartData.totalGames"></div>
 					</div>
+					<em ng-show="statistics.lost50" class='col-sm-12 gratz'>Congrats, <a target='_blank' href='http://senseis.xmp.net/?page=LoseYourFirst50GamesAsQuicklyAsPossible'>you lost your first 50 games</a>!</em>
 				</div>
 
-				<h3 class="text-center">Win/Loss ratio:</h3>
+				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div class="col-sm-4">
 						<h4 class="text-center">Total</h4>
@@ -42,8 +43,13 @@
 						<h4 class="text-center">As White</h4>
 						<div id="white_win_rate_chart" google-chart chart="statistics.chartData.whiteWinRate"></div>
 					</div>
+				</div>
 
-					<em ng-show="statistics.lost50" class='col-sm-12 gratz'>Congrats, <a target='_blank' href='http://senseis.xmp.net/?page=LoseYourFirst50GamesAsQuicklyAsPossible'>you lost your first 50 games</a>!</em>
+				<h3 class="text-center">Game results distribution</h3>
+				<div class="row">
+					<div class="col-xs-12">
+						<div id="outcome_chart" google-chart chart="statistics.chartData.allGamesOutcome"></div>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -58,7 +64,7 @@
 					</div>
 				</div>
 
-				<h3 class="text-center">Win/Loss ratio:</h3>
+				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div class="col-sm-4">
 						<h4 class="text-center">Total</h4>
@@ -86,7 +92,7 @@
 					</div>
 				</div>
 
-				<h3 class="text-center">Win/Loss ratio:</h3>
+				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div class="col-sm-4">
 						<h4 class="text-center">Total</h4>
@@ -114,7 +120,7 @@
 					</div>
 				</div>
 
-				<h3 class="text-center">Win/Loss ratio:</h3>
+				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div ng-show="!!statistics.chartData.nineteenWinRate.data" class="col-sm-6">
 						<h4 class="text-center">19x19</h4>
@@ -146,7 +152,7 @@
 					</div>
 				</div>
 
-				<h3 class="text-center">Win/Loss ratio:</h3>
+				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div ng-show="!!statistics.chartData.blitzWinRate.data" class="col-sm-4">
 						<h4 class="text-center">Blitz</h4>
