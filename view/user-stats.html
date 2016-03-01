@@ -10,10 +10,8 @@
 			<circle class="black_stone4" cx="71.5" cy="114.5" r="19.5" stroke-width="0" fill="#000000" />
 			<circle class="white_stone" cx="71.5" cy="71.5" r="20" stroke-width="0" fill="#f8f8ff" />
 		</svg>
-		<h4>Fetching games result from OGS: page {{loadingPage}} <span ng-show="totalPages > 0">of {{totalPages}}.<span></h4>
-		<p ng-show="connectionError" class="error ng-hide">
-			Error connecting to OGS server. <strong>Error code: {{connectionErrorCode}}</strong>. <span ng-show="retryNumber < 5">Retrying in {{retryNumber*retryNumber}} seconds.</span><span ng-hide="retryNumber < 5">Please try again later or contact me if you really have the need to stalk that person.</span>
-		</p>
+		<h5>Fetching games result from OGS: page {{loadingPage}} <span ng-show="totalPages > 0">of {{totalPages}}.<span></h5>
+		<p ng-show="connectionError" ng-bind-html="connectionErrorMessage" class="error ng-hide"></p>
 	</div>
 
 	<div class="invisible" ng-class="{totally_visible: $root.ready}">
@@ -32,15 +30,15 @@
 				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div class="col-sm-4">
-						<h4 class="text-center">Total</h4>
+						<h5 class="text-center">Total</h5>
 						<div id="total_win_rate_chart" google-chart chart="statistics.chartData.totalWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.blackWinRate.data" class="col-sm-4">
-						<h4 class="text-center">As Black</h4>
+						<h5 class="text-center">As Black</h5>
 						<div id="black_win_rate_chart" google-chart chart="statistics.chartData.blackWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.whiteWinRate.data" class="col-sm-4">
-						<h4 class="text-center">As White</h4>
+						<h5 class="text-center">As White</h5>
 						<div id="white_win_rate_chart" google-chart chart="statistics.chartData.whiteWinRate"></div>
 					</div>
 				</div>
@@ -67,15 +65,15 @@
 				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div class="col-sm-4">
-						<h4 class="text-center">Total</h4>
+						<h5 class="text-center">Total</h5>
 						<div id="total_ranked_win_rate_chart" google-chart chart="statistics.chartData.totalRankedWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.blackRankedWinRate.data" class="col-sm-4">
-						<h4 class="text-center">As Black</h4>
+						<h5 class="text-center">As Black</h5>
 						<div id="black_ranked_win_rate_chart" google-chart chart="statistics.chartData.blackRankedWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.whiteRankedWinRate.data" class="col-sm-4">
-						<h4 class="text-center">As White</h4>
+						<h5 class="text-center">As White</h5>
 						<div id="white_ranked_win_rate_chart" google-chart chart="statistics.chartData.whiteRankedWinRate"></div>
 					</div>
 				</div>
@@ -95,15 +93,15 @@
 				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div class="col-sm-4">
-						<h4 class="text-center">Total</h4>
+						<h5 class="text-center">Total</h5>
 						<div id="total_unranked_win_rate_chart" google-chart chart="statistics.chartData.totalUnrankedWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.blackUnrankedWinRate.data" class="col-sm-4">
-						<h4 class="text-center">As Black</h4>
+						<h5 class="text-center">As Black</h5>
 						<div id="black_unranked_win_rate_chart" google-chart chart="statistics.chartData.blackUnrankedWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.whiteUnrankedWinRate.data" class="col-sm-4">
-						<h4 class="text-center">As White</h4>
+						<h5 class="text-center">As White</h5>
 						<div id="white_unranked_win_rate_chart" google-chart chart="statistics.chartData.whiteUnrankedWinRate"></div>
 					</div>
 				</div>
@@ -123,19 +121,19 @@
 				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div ng-show="!!statistics.chartData.nineteenWinRate.data" class="col-sm-6">
-						<h4 class="text-center">19x19</h4>
+						<h5 class="text-center">19x19</h5>
 						<div id="19_win_rate_chart" google-chart chart="statistics.chartData.nineteenWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.thirteenWinRate.data" class="col-sm-6">
-						<h4 class="text-center">13x13</h4>
+						<h5 class="text-center">13x13</h5>
 						<div id="13_win_rate_chart" google-chart chart="statistics.chartData.thirteenWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.nineWinRate.data" class="col-sm-6">
-						<h4 class="text-center">9x9</h4>
+						<h5 class="text-center">9x9</h5>
 						<div id="9_win_rate_chart" google-chart chart="statistics.chartData.nineWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.otherSizesWinRate.data" class="col-sm-6">
-						<h4 class="text-center">Other sizes</h4>
+						<h5 class="text-center">Other sizes</h5>
 						<div id="other_sizes_win_rate_chart" google-chart chart="statistics.chartData.otherSizesWinRate"></div>
 					</div>
 				</div>
@@ -155,15 +153,15 @@
 				<h3 class="text-center">Win/Loss ratio</h3>
 				<div class="row">
 					<div ng-show="!!statistics.chartData.blitzWinRate.data" class="col-sm-4">
-						<h4 class="text-center">Blitz</h4>
+						<h5 class="text-center">Blitz</h5>
 						<div id="blitz_win_rate_chart" google-chart chart="statistics.chartData.blitzWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.liveWinRate.data" class="col-sm-4">
-						<h4 class="text-center">Live</h4>
+						<h5 class="text-center">Live</h5>
 						<div id="live_win_rate_chart" google-chart chart="statistics.chartData.liveWinRate"></div>
 					</div>
 					<div ng-show="!!statistics.chartData.correspondenceWinRate.data" class="col-sm-4">
-						<h4 class="text-center">Correspondence</h4>
+						<h5 class="text-center">Correspondence</h5>
 						<div id="correspondence_win_rate_chart" google-chart chart="statistics.chartData.correspondenceWinRate"></div>
 					</div>
 				</div>
@@ -203,7 +201,7 @@
 			<div ng-show="statistics.showAllGames">
 				<div class="row">
 					<div class="col-xs-12">
-						<h4 class="text-center">Activities in the past 15 days</h4>
+						<h5 class="text-center">Activities in the past 15 days</h5>
 						<div id="recent_activity_chart" google-chart chart="statistics.chartData.recentActivity"></div>
 
 						<ul class="info_list">

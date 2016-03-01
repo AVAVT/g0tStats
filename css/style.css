@@ -10,7 +10,7 @@ body{
 	background-color: #1d232e;
 	color: #f8f8ff;
 }
-small, h4, h2 small{
+em, small, h5, h2 small{
 	color: #ababab;
 }
 

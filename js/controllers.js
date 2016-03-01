@@ -1,4 +1,4 @@
-﻿var gotStatsControlers = angular.module('gotStatsControlers', ["googlechart"]);
+﻿var gotStatsControlers = angular.module('gotStatsControlers', ["googlechart", "ngSanitize"]);
 
 gotStatsControlers.controller('SidebarController',  ['$scope','$location',function($scope, $location) {
 	$scope.scrollTo = function(hash){
@@ -136,8 +136,44 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 	  $scope.destroyed = true;
 	});
 
+	var init = function(){
+		var connectionString = "";
+		if(isNaN($routeParams.userId)){
+			$http.get("https://online-go.com/api/v1/players/?username="+$routeParams.userId).then(
+				function(successData){
+					if(successData.data.results.length > 0){
+						$scope.statistics.player = successData.data.results[0];
+						$rootScope.player = {username : $scope.statistics.player.username, rank : gotStatsApp.utilities.convertRankToDisplay($scope.statistics.player.ranking), id: $scope.statistics.player.id, isRanked : !($scope.statistics.player.ui_class.indexOf("provisional") != -1)};
+						getAllGames(onGameFetchingComplete);
+					}
+					else{
+						$scope.connectionError = true;
+						$scope.connectionErrorMessage = "Error: user not found. Are you sure you entered the correct username? If it still doesn't work, try using user id instead.";
+					}
+				},
+				function(errorData){
+					$scope.connectionError = true;
+					$scope.connectionErrorMessage = "Error connecting to OGS server. <strong>Error code: " + errorData.status + "</strong>. Please try again later or contact me if you really have the need to stalk that person.";
+				}
+			);
+		}
+		else{
+			$http.get("https://online-go.com/api/v1/players/" + $routeParams.userId).then(
+				function(successData){
+					$scope.statistics.player = successData.data;
+					$rootScope.player = {username : successData.data.username, rank : gotStatsApp.utilities.convertRankToDisplay(successData.data.ranking), id: successData.data.id, isRanked : (successData.data.provisional_games_left < 1)};
+					getAllGames(onGameFetchingComplete);
+				},
+				function(errorData){
+					$scope.connectionError = true;
+					$scope.connectionErrorMessage = "Error connecting to OGS server. <strong>Error code: " + errorData.status + "</strong>. Please try again later or contact me if you really have the need to stalk that person.";
+				}
+			);
+		}
+	}
+
 	var getAllGames = function(callBack, url){
-		if(url === undefined) url = "https://online-go.com/api/v1/players/" +$routeParams.userId+ "/games/?ended__isnull=false&annulled=false&ordering=-ended";
+		if(url === undefined) url = "https://online-go.com/api/v1/players/" +$scope.statistics.player.id+ "/games/?ended__isnull=false&annulled=false&ordering=-ended";
 
 		$http.get(url).then(
 			function(successData){
@@ -159,11 +195,14 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 
 				// If you can't get what this part mean, it means I don't know shit about Angularjs
 				$scope.connectionError = true;
-				$scope.connectionErrorCode = errorData.status;
 				$scope.retryNumber+=1;
 
 				if($scope.retryNumber < 5){
+						$scope.connectionErrorMessage = "Error connecting to OGS server. <strong>Error code: " + errorData.status + "</strong>. Retrying in "+(retryNumber*retryNumber)+" seconds...";
 						setTimeout(function(){getAllGames(callBack, url);}, $scope.retryNumber*$scope.retryNumber*1000);
+				}
+				else{
+					$scope.connectionErrorMessage = "Error connecting to OGS server. <strong>Error code: " + errorData.status + "</strong>. Please try again later or contact me if you really have the need to stalk that person.";
 				}
 			}
 		);
@@ -194,7 +233,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 					globalSiteRankingData.rank = (globalSiteRankingData.currentPage-1)*gotStatsApp.config.ogsResultPageSize;
 					for(var i=0;i<successData.data.results.length;i++){
 						globalSiteRankingData.rank++
-						if(successData.data.results[i].id == $rootScope.player.id){
+						if(successData.data.results[i].id == $scope.statistics.player.id){
 							$scope.statistics.misc.globalRankMsg = "#" + globalSiteRankingData.rank + " amongs all " + $scope.statistics.misc.totalPlayers + " non-provisional players."
 							return true;
 						}
@@ -293,7 +332,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 		for(var i=0;i<$scope.statistics.allGames.length; i++){
 			game = $scope.statistics.allGames[i];
 
-			if(game.players.black.id == $rootScope.player.id){
+			if(game.players.black.id == $scope.statistics.player.id){
 				blackGames++;
 				if(game.black_lost){
 					blackLosses++;
@@ -452,7 +491,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 		for(var i=0;i<$scope.statistics.allGames.length; i++){
 			game = $scope.statistics.allGames[i];
 			if(game.ranked){
-				if(game.players.black.id == $rootScope.player.id){
+				if(game.players.black.id == $scope.statistics.player.id){
 					rankedBlack++;
 					if(game.black_lost) rankedBlackLosses++;
 				}
@@ -527,7 +566,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 		for(var i=0;i<$scope.statistics.allGames.length; i++){
 			game = $scope.statistics.allGames[i];
 			if(!game.ranked){
-				if(game.players.black.id == $rootScope.player.id){
+				if(game.players.black.id == $scope.statistics.player.id){
 					unrankedBlack++;
 					if(game.black_lost) unrankedBlackLosses++;
 				}
@@ -603,29 +642,29 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
  			game = $scope.statistics.allGames[i];
 			if(game.width == 19 && game.height == 19){
 				nineteenGames++;
-				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
-						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+				if( (game.players.black.id == $scope.statistics.player.id && game.black_lost)
+						|| (game.players.white.id == $scope.statistics.player.id && game.white_lost)){
 					nineteenLosses++;
 				}
 			}
  			else if(game.width == 13 && game.height == 13){
 				thirteenGames++;
-				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
-						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+				if( (game.players.black.id == $scope.statistics.player.id && game.black_lost)
+						|| (game.players.white.id == $scope.statistics.player.id && game.white_lost)){
 					thirteenLosses++;
 				}
 			}
 			else if(game.width == 9 && game.height == 9){
 				nineGames++;
-				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
-						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+				if( (game.players.black.id == $scope.statistics.player.id && game.black_lost)
+						|| (game.players.white.id == $scope.statistics.player.id && game.white_lost)){
 					nineLosses++;
 				}
 			}
 			else{
 				otherGames++;
-				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
-						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+				if( (game.players.black.id == $scope.statistics.player.id && game.black_lost)
+						|| (game.players.white.id == $scope.statistics.player.id && game.white_lost)){
 					otherLosses++;
 				}
 			}
@@ -709,22 +748,22 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			game = $scope.statistics.allGames[i];
 			if(game.time_per_move < 20){
 				blitzGames++;
-				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
-						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+				if( (game.players.black.id == $scope.statistics.player.id && game.black_lost)
+						|| (game.players.white.id == $scope.statistics.player.id && game.white_lost)){
 					blitzLosses++;
 				}
 			}
 			else if(game.time_per_move > 10800){
 				correspondenceGames++;
-				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
-						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+				if( (game.players.black.id == $scope.statistics.player.id && game.black_lost)
+						|| (game.players.white.id == $scope.statistics.player.id && game.white_lost)){
 					correspondenceLosses++;
 				}
 			}
 			else{
 				liveGames++;
-				if( (game.players.black.id == $rootScope.player.id && game.black_lost)
-						|| (game.players.white.id == $rootScope.player.id && game.white_lost)){
+				if( (game.players.black.id == $scope.statistics.player.id && game.black_lost)
+						|| (game.players.white.id == $scope.statistics.player.id && game.white_lost)){
 					liveLosses++;
 				}
 			}
@@ -789,7 +828,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 		for(var i=0;i<$scope.statistics.allGames.length; i++){
 			game = $scope.statistics.allGames[i];
 
-			if(game.players.black.id == $rootScope.player.id){
+			if(game.players.black.id == $scope.statistics.player.id){
 				opponent = game.players.white;
 
 				if(game.white_lost && opponent.ranking > strongestDefeatedOpponent.rank){
@@ -860,8 +899,8 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			game = $scope.statistics.allGames[i];
 
 			// Winning streak
-			if( (game.players.black.id == $rootScope.player.id && game.white_lost)
-				||(game.players.white.id == $rootScope.player.id && game.black_lost) ){
+			if( (game.players.black.id == $scope.statistics.player.id && game.white_lost)
+				||(game.players.white.id == $scope.statistics.player.id && game.black_lost) ){
 
 				currentStreak++;
 				if(currentStreak > longestStreak){
@@ -923,12 +962,21 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 				// console.log(today + " " + gameDay + " " + gotStatsApp.utilities.compareDays(today, gameDay));
 				if(gotStatsApp.utilities.compareDays(today, gameDay) > 15){
 					isRecentgame = false;
-					var theDay = recentDays.length > 0 ? new Date(recentDays[recentDays.length-1].date) : new Date(today);
+					var theDay;
+
+					if(recentDays.length > 0){
+						theDay = new Date(recentDays[recentDays.length-1].date)
+					}
+					else{
+						theDay = new Date(today);
+						recentDays.push({date: theDay, stringDate: $filter('date')(theDay, "d MMM"), wins: 0, losses: 0});
+					}
 
 					var lastDay = new Date(today.getTime() - 15* 86400000);
 					var daysToAdd = gotStatsApp.utilities.compareDays(theDay, lastDay);
-					for(var j=0;j < daysToAdd;j++){
-						var tempDate = new Date(theDay.getTime() - 86400000);
+
+					for(var j=1;j < daysToAdd;j++){
+						var tempDate = new Date(theDay.getTime() - j*86400000);
 
 						recentDays.push({date: tempDate, stringDate: $filter('date')(tempDate, "d MMM"), wins: 0, losses: 0});
 					}
@@ -960,8 +1008,8 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 
 			if(!isRecentgame) break;
 
-			if( (game.players.black.id == $rootScope.player.id && game.white_lost)
-				||(game.players.white.id == $rootScope.player.id && game.black_lost) ){
+			if( (game.players.black.id == $scope.statistics.player.id && game.white_lost)
+				||(game.players.white.id == $scope.statistics.player.id && game.black_lost) ){
 					recentDays[recentDays.length-1].wins++;
 			}
 			else{
@@ -991,11 +1039,7 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 	/*
 	 * INITIALIZATION
 	 */
-	$http.get("https://online-go.com/api/v1/players/" + $routeParams.userId).success(function(data){
-		$scope.statistics.player = data;
-		$rootScope.player = {username : data.username, rank : gotStatsApp.utilities.convertRankToDisplay(data.ranking), id: data.id, isRanked : (data.provisional_games_left < 1)};
-	});
 
-	getAllGames(onGameFetchingComplete);
+	init();
 
 }]);
