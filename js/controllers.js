@@ -713,14 +713,15 @@ gotStatsControlers.controller('UserStatisticsController',  ['$scope', '$rootScop
 			if(isRecentgame){
 				var gameDay = new Date(game.ended);
 				gameDay.setHours(0,0,0,0);
-
+				console.log(today + " " + gameDay + " " + gotStatsApp.utilities.compareDays(today, gameDay));
 				if(gotStatsApp.utilities.compareDays(today, gameDay) > 15){
 					isRecentgame = false;
-
+					var theDay = recentDays.length > 0 ? new Date(recentDays[recentDays.length-1].date) : new Date(today);
+					console.log(theDay);
 					var lastDay = new Date(today.getTime() - 15* 86400000);
-					var daysToAdd = gotStatsApp.utilities.compareDays(recentDays[recentDays.length-1].date, lastDay);
+					var daysToAdd = gotStatsApp.utilities.compareDays(theDay, lastDay);
 					for(var j=0;j < daysToAdd;j++){
-						var tempDate = new Date(recentDays[recentDays.length-1].date.getTime() - 86400000);
+						var tempDate = new Date(theDay.getTime() - 86400000);
 
 						recentDays.push({date: tempDate, stringDate: $filter('date')(tempDate, "d MMM"), wins: 0, losses: 0});
 					}
