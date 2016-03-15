@@ -115,6 +115,16 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 			blackUnrankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			whiteUnrankedWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 
+			totalEvenGames : jQuery.extend(true, {}, chartConfigs.blackWhiteChart),
+			totalEvenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			blackEvenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			whiteEvenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+
+			totalTournamentGames : jQuery.extend(true, {}, chartConfigs.blackWhiteChart),
+			totalTournamentWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			blackTournamentWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+			whiteTournamentWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+
 			allBoardSizes : jQuery.extend(true, {}, chartConfigs.colorChart),
 			nineteenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			thirteenWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
@@ -153,8 +163,7 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 				function(successData){
 					if(successData.data.results.length > 0){
 						$scope.statistics.player = successData.data.results[0];
-						$rootScope.player = {username : $scope.statistics.player.username, rank : gotStatsApp.utilities.convertRankToDisplay($scope.statistics.player.ranking), id: $scope.statistics.player.id, isRanked : !($scope.statistics.player.ui_class.indexOf("provisional") != -1)};
-						getAllGames(onGameFetchingComplete);
+						requestPlayerById(successData.data.results[0].id);
 					}
 					else{
 						$scope.connectionError = true;
@@ -168,18 +177,22 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 			);
 		}
 		else{
-			$http.get("https://online-go.com/api/v1/players/" + $routeParams.userId).then(
-				function(successData){
-					$scope.statistics.player = successData.data;
-					$rootScope.player = {username : successData.data.username, rank : gotStatsApp.utilities.convertRankToDisplay(successData.data.ranking), id: successData.data.id, isRanked : (successData.data.provisional_games_left < 1)};
-					getAllGames(onGameFetchingComplete);
-				},
-				function(errorData){
-					$scope.connectionError = true;
-					$scope.connectionErrorMessage = "Error connecting to OGS server. <strong>Error code: " + errorData.status + "</strong>. Please try again later or contact me if you really have the need to stalk that person.";
-				}
-			);
+			requestPlayerById($routeParams.userId);
 		}
+	}
+
+	var requestPlayerById = function(id){
+		$http.get("https://online-go.com/api/v1/players/" + id).then(
+			function(successData){
+				$scope.statistics.player = successData.data;
+				$rootScope.player = {username : successData.data.username, rank : gotStatsApp.utilities.convertRankToDisplay(successData.data.ranking), id: successData.data.id, isRanked : (successData.data.provisional_games_left < 1)};
+				getAllGames(onGameFetchingComplete);
+			},
+			function(errorData){
+				$scope.connectionError = true;
+				$scope.connectionErrorMessage = "Error connecting to OGS server. <strong>Error code: " + errorData.status + "</strong>. Please try again later or contact me if you really have the need to stalk that person.";
+			}
+		);
 	}
 
 	var getAllGames = function(callBack, url){
@@ -328,6 +341,8 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 		generateAllGamesData();
 		generateRankedGamesData();
 		generateUnrankedGamesData();
+		generateEvenGamesData();
+		generateTournamentGamesData();
 		generateBoardSizesData();
 		generateTimeSettingsData();
 		generateOpponentsData();
@@ -690,6 +705,166 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 	}
 
 	/*
+	 * EVEN GAMES STATISTICS
+	 */
+	 var generateEvenGamesData = function(){
+ 	  var evenBlack = 0, evenWhite = 0,
+ 	      evenBlackLosses = 0, evenWhiteLosses = 0;
+ 	  var game;
+
+ 	  for(var i=0;i<$scope.statistics.allGames.length; i++){
+ 	    game = $scope.statistics.allGames[i];
+ 	    if(game.handicap == 0){
+ 	      if(game.players.black.id == $scope.statistics.player.id){
+ 	        evenBlack++;
+ 	        if(game.black_lost) evenBlackLosses++;
+ 	      }
+ 	      else{
+ 	        evenWhite++;
+ 	        if(game.white_lost) evenWhiteLosses++;
+ 	      }
+ 	    }
+ 	  }
+
+ 	  $scope.statistics.totalEvenGames = evenBlack + evenWhite;
+
+ 	  $scope.statistics.chartData.totalEvenGames.data = {
+ 	    "cols" : [
+ 	      {id: "c", label: "Color", type: "string"},
+ 	      {id: "g", label: "Games", type: "number"},
+ 	    ],
+ 	    "rows": [
+ 	      {c: [ {v: "Black"}, {v: evenBlack} ]},
+ 	      {c: [ {v: "White"}, {v: evenWhite} ]},
+ 	    ]
+ 	  };
+
+ 	  if(evenBlack+evenWhite > 0){
+ 	    $scope.statistics.chartData.totalEvenWinRate.data = {
+ 	      "cols" : [
+ 	        {id: "c", label: "Result", type: "string"},
+ 	        {id: "g", label: "Games", type: "number"},
+ 	      ],
+ 	      "rows": [
+ 	        {c: [ {v: "Losses"}, {v: (evenBlackLosses + evenWhiteLosses)} ]},
+ 	        {c: [ {v: "Wins"}, {v: (evenBlack - evenBlackLosses + evenWhite - evenWhiteLosses)} ]},
+ 	      ]
+ 	    };
+ 	  }
+
+ 	  if(evenBlack > 0){
+ 	    $scope.statistics.chartData.blackEvenWinRate.data = {
+ 	      "cols" : [
+ 	        {id: "c", label: "Result", type: "string"},
+ 	        {id: "g", label: "Games", type: "number"},
+ 	      ],
+ 	      "rows": [
+ 	        {c: [ {v: "Losses"}, {v: evenBlackLosses} ]},
+ 	        {c: [ {v: "Wins"}, {v: (evenBlack - evenBlackLosses)} ]},
+ 	      ]
+ 	    };
+ 	  }
+
+ 	  if(evenWhite > 0){
+ 	    $scope.statistics.chartData.whiteEvenWinRate.data = {
+ 	      "cols" : [
+ 	        {id: "c", label: "Result", type: "string"},
+ 	        {id: "g", label: "Games", type: "number"},
+ 	      ],
+ 	      "rows": [
+ 	        {c: [ {v: "Losses"}, {v: evenWhiteLosses} ]},
+ 	        {c: [ {v: "Wins"}, {v: (evenWhite - evenWhiteLosses)} ]},
+ 	      ]
+ 	    };
+ 	  }
+ 	}
+
+	/*
+	 * TOURANMENT STATISTICS
+	 */
+	 var generateTournamentGamesData = function(){
+	  var tournamentBlack = 0, tournamentWhite = 0,
+	      tournamentBlackLosses = 0, tournamentWhiteLosses = 0,
+				noTournaments = 0;
+		var pastTournaments = [];
+	  var game;
+
+
+
+	  for(var i=0;i<$scope.statistics.allGames.length; i++){
+	    game = $scope.statistics.allGames[i];
+	    if(game.tournament != null){
+
+				if(pastTournaments.indexOf(game.tournament) == -1){
+					noTournaments++;
+					pastTournaments.push(game.tournament);
+				}
+
+	      if(game.players.black.id == $scope.statistics.player.id){
+	        tournamentBlack++;
+	        if(game.black_lost) tournamentBlackLosses++;
+	      }
+	      else{
+	        tournamentWhite++;
+	        if(game.white_lost) tournamentWhiteLosses++;
+	      }
+	    }
+	  }
+
+	  $scope.statistics.totalTournaments = noTournaments;
+
+	  $scope.statistics.chartData.totalTournamentGames.data = {
+	    "cols" : [
+	      {id: "c", label: "Color", type: "string"},
+	      {id: "g", label: "Games", type: "number"},
+	    ],
+	    "rows": [
+	      {c: [ {v: "Black"}, {v: tournamentBlack} ]},
+	      {c: [ {v: "White"}, {v: tournamentWhite} ]},
+	    ]
+	  };
+
+	  if(tournamentBlack+tournamentWhite > 0){
+	    $scope.statistics.chartData.totalTournamentWinRate.data = {
+	      "cols" : [
+	        {id: "c", label: "Result", type: "string"},
+	        {id: "g", label: "Games", type: "number"},
+	      ],
+	      "rows": [
+	        {c: [ {v: "Losses"}, {v: (tournamentBlackLosses + tournamentWhiteLosses)} ]},
+	        {c: [ {v: "Wins"}, {v: (tournamentBlack - tournamentBlackLosses + tournamentWhite - tournamentWhiteLosses)} ]},
+	      ]
+	    };
+	  }
+
+	  if(tournamentBlack > 0){
+	    $scope.statistics.chartData.blackTournamentWinRate.data = {
+	      "cols" : [
+	        {id: "c", label: "Result", type: "string"},
+	        {id: "g", label: "Games", type: "number"},
+	      ],
+	      "rows": [
+	        {c: [ {v: "Losses"}, {v: tournamentBlackLosses} ]},
+	        {c: [ {v: "Wins"}, {v: (tournamentBlack - tournamentBlackLosses)} ]},
+	      ]
+	    };
+	  }
+
+	  if(tournamentWhite > 0){
+	    $scope.statistics.chartData.whiteTournamentWinRate.data = {
+	      "cols" : [
+	        {id: "c", label: "Result", type: "string"},
+	        {id: "g", label: "Games", type: "number"},
+	      ],
+	      "rows": [
+	        {c: [ {v: "Losses"}, {v: tournamentWhiteLosses} ]},
+	        {c: [ {v: "Wins"}, {v: (tournamentWhite - tournamentWhiteLosses)} ]},
+	      ]
+	    };
+	  }
+	}
+
+	/*
 	 *	BOARD SIZES STATISTICS
 	 */
 	 var generateBoardSizesData = function(){
@@ -953,7 +1128,6 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 		var mostActiveDay, currentDay = new Date();
 		currentDay.setHours(0,0,0,0);
 
-
 		for(var i=0;i<$scope.statistics.allGames.length; i++){
 			game = $scope.statistics.allGames[i];
 
@@ -989,8 +1163,14 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 				gamesOnMostActiveDay = gamesOnCurrentDay;
 			}
 		}
+		var memberSince = new Date($scope.statistics.player.registration_date);
+		memberSince.setHours(0,0,0,0);
+		var daysSinceRegistered = gotStatsApp.utilities.compareDays(new Date(), memberSince);
+		var gamesPerDay = $scope.statistics.allGames.length/parseFloat(daysSinceRegistered);
 
 		$scope.statistics.misc = {
+			memberSince : memberSince,
+			gamesPerDay : gamesPerDay,
 			longestStreak : longestStreak,
 			mostActiveDay : mostActiveDay,
 			gamesOnMostActiveDay: gamesOnMostActiveDay,

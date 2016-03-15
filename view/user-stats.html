@@ -113,6 +113,62 @@
 			</div>
 		</section>
 
+		<!-- EVEN GAMES CHARTS -->
+		<section class="stats_block">
+		  <h2 id="even_games_stats" class="text-center">Even games: {{statistics.totalEvenGames}}</h2>
+		  <div ng-show="statistics.totalEvenGames > 0">
+		    <div class="row">
+		      <div class="col-sm-offset-3 col-sm-6">
+		        <div id="total_even_games_chart" google-chart chart="statistics.chartData.totalEvenGames"></div>
+		      </div>
+		    </div>
+
+		    <h3 class="text-center">Win/Loss ratio</h3>
+		    <div class="row">
+		      <div class="col-sm-4">
+		        <h5 class="text-center">Total</h5>
+		        <div id="total_even_win_rate_chart" google-chart chart="statistics.chartData.totalEvenWinRate"></div>
+		      </div>
+		      <div ng-show="!!statistics.chartData.blackEvenWinRate.data" class="col-sm-4">
+		        <h5 class="text-center">As Black</h5>
+		        <div id="black_even_win_rate_chart" google-chart chart="statistics.chartData.blackEvenWinRate"></div>
+		      </div>
+		      <div ng-show="!!statistics.chartData.whiteEvenWinRate.data" class="col-sm-4">
+		        <h5 class="text-center">As White</h5>
+		        <div id="white_even_win_rate_chart" google-chart chart="statistics.chartData.whiteEvenWinRate"></div>
+		      </div>
+		    </div>
+		  </div>
+		</section>
+
+		<!-- EVEN GAMES CHARTS -->
+		<section class="stats_block">
+		  <h2 id="tournament_games_stats" class="text-center">Joined {{statistics.totalTournaments}} different tournaments</h2>
+		  <div ng-show="statistics.totalTournaments > 0">
+		    <div class="row">
+		      <div class="col-sm-offset-3 col-sm-6">
+		        <div id="total_tournament_games_chart" google-chart chart="statistics.chartData.totalTournamentGames"></div>
+		      </div>
+		    </div>
+
+		    <h3 class="text-center">Win/Loss ratio</h3>
+		    <div class="row">
+		      <div class="col-sm-4">
+		        <h5 class="text-center">Total</h5>
+		        <div id="total_tournament_win_rate_chart" google-chart chart="statistics.chartData.totalTournamentWinRate"></div>
+		      </div>
+		      <div ng-show="!!statistics.chartData.blackTournamentWinRate.data" class="col-sm-4">
+		        <h5 class="text-center">As Black</h5>
+		        <div id="black_tournament_win_rate_chart" google-chart chart="statistics.chartData.blackTournamentWinRate"></div>
+		      </div>
+		      <div ng-show="!!statistics.chartData.whiteTournamentWinRate.data" class="col-sm-4">
+		        <h5 class="text-center">As White</h5>
+		        <div id="white_tournament_win_rate_chart" google-chart chart="statistics.chartData.whiteTournamentWinRate"></div>
+		      </div>
+		    </div>
+		  </div>
+		</section>
+
 		<!-- BOARD SIZES CHARTS -->
 		<section class="stats_block">
 			<h2 id="board_sizes_stats" class="text-center">Performance across board sizes</h2>
@@ -211,6 +267,8 @@
 
 						<ul class="info_list">
 							<li>Global ranking: <span ng-show="$root.player.isRanked">{{statistics.misc.globalRankMsg}}</span><span ng-hide="$root.player.isRanked">not available because this account is provisional.</span></li>
+							<li>Member since: {{statistics.misc.memberSince | date:'d MMM yyyy'}}.</li>
+							<li>Average games per day: {{statistics.misc.gamesPerDay | number : 2}}.<span ng-show="statistics.misc.gamesPerDay >= 1"> (Wow! That's real perseverance!)</span></li>
 							<li>Longest win streak: {{statistics.misc.longestStreak}} wins in a row!</li>
 							<li>Lifetime most active day: {{statistics.misc.mostActiveDay | date:'d MMM yyyy'}} with {{statistics.misc.gamesOnMostActiveDay}} finished games.</li>
 						</ul>
