@@ -41,21 +41,35 @@
 						<div id="white_win_rate_chart" google-chart chart="statistics.chartData.whiteWinRate"></div>
 					</div>
 				</div>
-
-				<h3 class="text-center">Game results distribution</h3>
-				<div class="row">
-					<div class="col-xs-12">
-						<div id="outcome_chart" google-chart chart="statistics.chartData.allGamesOutcome"></div>
-					</div>
-				</div>
 				<div ng-show="statistics.lost50" class="row">
 					<div class="col-xs-12">
 						<p class='gratz'>Congratulations, <a target='_blank' href='http://senseis.xmp.net/?page=LoseYourFirst50GamesAsQuicklyAsPossible'>you have lost your first 50 games</a>!</p>
 					</div>
 				</div>
-
 			</div>
 		</section>
+	<section class="stats_block">
+		<div ng-show="statistics.showAllGames">
+			<h2 id="game_results" class="text-center">Game results distribution</h2>
+			<div class="row">
+				<div class="col-sm-6">
+					<h5 class="text-center">Losses</h5>
+					<div id="losses_result_chart" google-chart chart="statistics.chartData.lossesDistribution"></div>
+				</div>
+				<div class="col-sm-6">
+					<h5 class="text-center">Wins</h5>
+					<div id="wins_result_chart" google-chart chart="statistics.chartData.winsDistribution"></div>
+				</div>
+			</div>
+
+			<h3 class="text-center">Score differences distribution</h3>
+			<div class="row">
+				<div class="col-xs-12">
+					<div id="outcome_chart" google-chart chart="statistics.chartData.allGamesOutcome"></div>
+				</div>
+			</div>
+		</div>
+	</section>
 
 		<!-- RANKED GAMES CHARTS -->
 		<section class="stats_block">
@@ -250,6 +264,12 @@
 							<li>Most played with: <a target="_blank" href="http://online-go.com/user/view/{{statistics.chartData.opponents.mostPlayed.id}}/{{statistics.chartData.opponents.mostPlayed.username}}"><img class="img-20" data-ng-src="http://online-go.com/api/v1/players/{{statistics.chartData.opponents.mostPlayed.id}}/icon?size=32"></img> {{statistics.chartData.opponents.mostPlayed.username}} ({{statistics.chartData.opponents.mostPlayed.rank}})</a> in {{statistics.chartData.opponents.mostPlayed.games}} games.</li>
 							<li>Scored a triumphant victory against <a target="_blank" href="http://online-go.com/user/view/{{statistics.chartData.opponents.strongestDefeatedOpponent.id}}/{{statistics.chartData.opponents.strongestDefeatedOpponent.username}}"><img class="img-20" data-ng-src="http://online-go.com/api/v1/players/{{statistics.chartData.opponents.strongestDefeatedOpponent.id}}/icon?size=32"></img> {{statistics.chartData.opponents.strongestDefeatedOpponent.username}} ({{statistics.chartData.opponents.strongestDefeatedOpponent.rank}})</a> in <a href="http://online-go.com/game/{{statistics.chartData.opponents.strongestDefeatedOpponent.url}}" target="_blank">{{statistics.chartData.opponents.strongestDefeatedOpponent.outcome}} game</a>.</li>
 							<li>Average game per opponent: {{statistics.chartData.opponents.averageGamePerOpponent | number : 2}} games.</li>
+							<!--
+							<li>Average rank difference:
+								<span ng-hide="statistics.chartData.opponents.averageRankDifference < 0">opponents are {{statistics.chartData.opponents.averageRankDifference | number : 2}} stone stronger.</span>
+								<span ng-show="statistics.chartData.opponents.averageRankDifference < 0">opponents are {{-statistics.chartData.opponents.averageRankDifference | number : 2}} stone weaker.</span>
+							</li>
+						-->
 						</ul>
 					</div>
 				</div>

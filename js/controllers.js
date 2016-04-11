@@ -103,6 +103,9 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 			totalWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			blackWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
 			whiteWinRate : jQuery.extend(true, {}, chartConfigs.colorChart),
+
+			winsDistribution: jQuery.extend(true, {}, chartConfigs.colorChart),
+			lossesDistribution: jQuery.extend(true, {}, chartConfigs.colorChart),
 			allGamesOutcome : jQuery.extend(true, {}, chartConfigs.outcomeChart),
 
 			totalRankedGames : jQuery.extend(true, {}, chartConfigs.blackWhiteChart),
@@ -383,6 +386,7 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 		var blackGames = 0, whiteGames = 0,
 				blackLosses = 0, whiteLosses = 0;
 		var outcomeChartData = {
+			"Opp+Count" : 0,
 			"Opp+Res" 	: 0,
 			"Opp+Time" 	: 0,
 			"Opp+40+"		: 0,
@@ -396,7 +400,8 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 			"Plr+30+"		: 0,
 			"Plr+40+"		: 0,
 			"Plr+Time"	: 0,
-			"Plr+Res"		: 0
+			"Plr+Res"		: 0,
+			"Plr+Count" : 0
 		};
 
 		for(var i=0;i<$scope.statistics.allGames.length; i++){
@@ -480,6 +485,30 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 			};
 		}
 
+		$scope.statistics.chartData.winsDistribution.data = {
+			"cols" : [
+				{id: "r", label: "Result", type: "string"},
+				{id: "g", label: "Games", type: "number"},
+			],
+			"rows": [
+				{c: [ {v: "Resign"}, {v: outcomeChartData["Plr+Res"]} ]},
+				{c: [ {v: "Timeout"}, {v: outcomeChartData["Plr+Time"]} ]},
+				{c: [ {v: "Scoring"}, {v: outcomeChartData["Plr+Count"]} ]},
+			]
+		};
+
+		$scope.statistics.chartData.lossesDistribution.data = {
+			"cols" : [
+				{id: "r", label: "Result", type: "string"},
+				{id: "g", label: "Games", type: "number"},
+			],
+			"rows": [
+				{c: [ {v: "Resign"}, {v: outcomeChartData["Opp+Res"]} ]},
+				{c: [ {v: "Timeout"}, {v: outcomeChartData["Opp+Time"]} ]},
+				{c: [ {v: "Scoring"}, {v: outcomeChartData["Opp+Count"]} ]},
+			]
+		};
+
 		$scope.statistics.chartData.allGamesOutcome.data = {
 			"cols" : [
 				{id: "o", label: "Outcome", type: "string"},
@@ -487,8 +516,6 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 				{id: "g", label: "Games " + $scope.player.username + " wins", type: "number"},
 			],
 			"rows": [
-				{c: [ {v: "Res"}, {v: outcomeChartData["Opp+Res"]}, {v: 0} ]},
-				{c: [ {v: "Time"}, {v: outcomeChartData["Opp+Time"]}, {v: 0} ]},
 				{c: [ {v: "40+"}, {v: outcomeChartData["Opp+40+"]}, {v: 0} ]},
 				{c: [ {v: "30+"}, {v: outcomeChartData["Opp+30+"]}, {v: 0} ]},
 				{c: [ {v: "20+"}, {v: outcomeChartData["Opp+20+"]}, {v: 0} ]},
@@ -498,9 +525,7 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 				{c: [ {v: "10+"}, {v: 0}, {v: outcomeChartData["Plr+10+"]} ]},
 				{c: [ {v: "20+"}, {v: 0}, {v: outcomeChartData["Plr+20+"]} ]},
 				{c: [ {v: "30+"}, {v: 0}, {v: outcomeChartData["Plr+30+"]} ]},
-				{c: [ {v: "40+"}, {v: 0}, {v: outcomeChartData["Plr+40+"]} ]},
-				{c: [ {v: "Time"}, {v: 0}, {v: outcomeChartData["Plr+Time"]} ]},
-				{c: [ {v: "Res"}, {v: 0}, {v: outcomeChartData["Plr+Res"]} ]}
+				{c: [ {v: "40+"}, {v: 0}, {v: outcomeChartData["Plr+40+"]} ]}
 			]
 		};
 	}
@@ -543,8 +568,14 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 				result = "40+";
 			}
 
-			if(isWin) result = "Plr+" + result;
-			else result = "Opp+" + result;
+			if(isWin){
+				result = "Plr+" + result;
+				outcomeChartData["Plr+Count"]++;
+			}
+			else{
+				result = "Opp+" + result;
+				outcomeChartData["Opp+Count"]++;
+			}
 			outcomeChartData[result]++;
 		}
 		else{
@@ -1058,12 +1089,14 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 		var game, opponent;
 		var opponents = [], numberOpponents = 0;
 		var weakestOpp = {rank: 70}, strongestOpp = { rank : 0}, mostPlayed = { games : 0}, strongestDefeatedOpponent = { rank : 0};
+		//var rankDifference = 0;
 
 		for(var i=0;i<$scope.statistics.allGames.length; i++){
 			game = $scope.statistics.allGames[i];
 
 			if(game.players.black.id == $scope.statistics.player.id){
 				opponent = game.players.white;
+				//rankDifference += (game.white_player_rank - game.black_player_rank); Doesn't work
 
 				if(game.white_lost && opponent.ranking > strongestDefeatedOpponent.rank){
 					strongestDefeatedOpponent = {
@@ -1077,6 +1110,7 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 			}
 			else{
 				opponent = game.players.black;
+				//rankDifference += (game.black_player_rank - game.white_player_rank);
 
 				if(game.black_lost && opponent.ranking > strongestDefeatedOpponent.rank){
 					strongestDefeatedOpponent = {
@@ -1112,11 +1146,12 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 		$scope.statistics.totalOpponents = numberOpponents;
 
 		$scope.statistics.chartData.opponents = {
-			strongest				: strongestOpp,
-			weakest					: weakestOpp,
-			mostPlayed			: mostPlayed,
+			strongest									: strongestOpp,
+			weakest										: weakestOpp,
+			mostPlayed								: mostPlayed,
 			strongestDefeatedOpponent : strongestDefeatedOpponent,
-			averageGamePerOpponent	: ($scope.statistics.allGames.length / numberOpponents)
+			averageGamePerOpponent		: ($scope.statistics.allGames.length / numberOpponents),
+			//averageRankDifference			: (rankDifference/$scope.statistics.allGames.length)
 		}
 	}
 
