@@ -7,11 +7,21 @@ body{
 	padding: 0;
 	margin: 0;
 	position: relative;
-	background-color: #1d232e;
+	background-color: #25252F;
 	color: #f8f8ff;
 }
 em, small, h5, h2 small{
-	color: #ababab;
+	color: #909096;
+}
+
+a{
+	color: #d93344;
+}
+
+a:hover,
+a:active,
+a:focus{
+	color: #d93344;
 }
 
 a:active,
@@ -19,6 +29,21 @@ a:focus,
 button:active,
 button:focus{
 	outline: 0 none;
+}
+
+.btn.btn-primary{
+	background: #d93344;
+	border-radius: 2px;
+	border-color: #d93344;
+}
+
+input.form-control{
+	border-radius: 2px;
+}
+
+.btn.btn-primary:active{
+	background: #C92535;
+	border-color: #C92535;
 }
 
 [google-chart]{
@@ -66,7 +91,6 @@ h3{
 	left: 0;
 	right: 0;
 	padding: 10px 15px;
-	color: #333333;
 	z-index: 10;
 	text-align: center;
 }
@@ -122,14 +146,14 @@ h3{
 	overflow: visible;
 	position: relative;
 
-	background: #ee4207; /* Old browsers */
-	background: -moz-linear-gradient(left, #ee4207 0%, #05a658 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#ee4207), color-stop(100%,#05a658)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(left, #ee4207 0%,#05a658 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(left, #ee4207 0%,#05a658 100%); /* Opera 11.10+ */
-	background: -ms-linear-gradient(left, #ee4207 0%,#05a658 100%); /* IE10+ */
-	background: linear-gradient(to right, #ee4207 0%,#05a658 100%); /* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ee4207', endColorstr='#05a658',GradientType=1 ); /* IE6-9 */
+	background: #d93344; /* Old browsers */
+	background: -moz-linear-gradient(left, #d93344 0%, #41CD64 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#d93344), color-stop(100%,#41CD64)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(left, #d93344 0%,#41CD64 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(left, #d93344 0%,#41CD64 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(left, #d93344 0%,#41CD64 100%); /* IE10+ */
+	background: linear-gradient(to right, #d93344 0%,#41CD64 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d93344', endColorstr='#41CD64',GradientType=1 ); /* IE6-9 */
 }
 
 .bar_chart a{

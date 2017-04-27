@@ -10,7 +10,7 @@
 			<circle class="black_stone4" cx="71.5" cy="114.5" r="19.5" stroke-width="0" fill="#000000" />
 			<circle class="white_stone" cx="71.5" cy="71.5" r="20" stroke-width="0" fill="#f8f8ff" />
 		</svg>
-		<h5>Fetching games result from OGS: page {{loadingPage}} <span ng-show="totalPages > 0">of {{totalPages}}.<span></h5>
+		<p>Fetching games result from OGS: page {{loadingPage}} <span ng-show="totalPages > 0">of {{totalPages}}.</span></p>
 		<p ng-show="connectionError" ng-bind-html="connectionErrorMessage" class="error ng-hide"></p>
 	</div>
 
@@ -22,7 +22,7 @@
 			<div ng-show="statistics.showAllGames">
 				<div class="row">
 					<div class="col-sm-offset-3 col-sm-6">
-						<div id="total_games_chart" google-chart chart="statistics.chartData.totalGames"></div>
+						<div id="total_games_chart" chart="statistics.chartData.totalGames" google-chart></div>
 					</div>
 				</div>
 
@@ -157,7 +157,7 @@
 
 		<!-- EVEN GAMES CHARTS -->
 		<section class="stats_block">
-		  <h2 id="tournament_games_stats" class="text-center">Joined {{statistics.totalTournaments}} different tournaments</h2>
+		  <h2 id="tournament_games_stats" class="text-center">Participated in {{statistics.totalTournaments}} tournaments</h2>
 		  <div ng-show="statistics.totalTournaments > 0">
 		    <div class="row">
 		      <div class="col-sm-offset-3 col-sm-6">

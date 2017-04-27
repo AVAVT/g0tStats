@@ -30,5 +30,19 @@ gotStatsApp.utilities = {
 
     // Round down.
     return two > one ? Math.floor(days) : Math.ceil(days);
+	},
+
+	validateDate : function(d){
+		if ( Object.prototype.toString.call(d) === "[object Date]" ) {
+		  if ( isNaN( d.getTime() ) ) {
+				return false;
+		  }
+		  else {
+		    return true;
+		  }
+		}
+		else {
+		  return false;
+		}
 	}
 }
