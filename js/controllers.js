@@ -286,6 +286,7 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 	};
 
 	var calculateGlobalRanking = function(){
+		$scope.statistics.misc.globalRankMsg = "Calculating...";
 		var url = "https://online-go.com/api/v1/players?ordering=-rating&numProvisional__lt=1" + (globalSiteRankingData.currentPage > 1 ? ("&page="+globalSiteRankingData.currentPage) : "");
 
 		$http.get(url).then(
@@ -381,14 +382,29 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 		if($scope.statistics.totalGames <= 0){
 			$scope.statistics.showAllGames = false;
 		}
+		else{
+			$scope.statistics.showAllGames = true;
+		}
+
 		if($scope.statistics.totalRankedGames <= 0){
 			$scope.statistics.showRankedGames = false;
 		}
+		else{
+			$scope.statistics.showRankedGames = true;
+		}
+
 		if($scope.statistics.totalUnrankedGames <= 0){
 			$scope.statistics.showUnrankedGames = false;
 		}
+		else{
+			$scope.statistics.showUnrankedGames = true;
+		}
+
 		if($scope.statistics.totalOpponents <= 0){
 			$scope.statistics.showOpponents = false;
+		}
+		else{
+			$scope.statistics.showOpponents = true;
 		}
 	}
 
@@ -1236,28 +1252,32 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 			}
 		}
 
-		var firstGameDate = new Date($scope.statistics.analyzingGames[$scope.statistics.analyzingGames.length-1].started);
+
 		var memberSince = new Date($scope.statistics.player.registration_date);
 
-		if(firstGameDate < memberSince) memberSince = firstGameDate;
+		if($scope.statistics.analyzingGames.length){
+			var firstGameDate = new Date($scope.statistics.analyzingGames[$scope.statistics.analyzingGames.length-1].started);
+			if(firstGameDate < memberSince) memberSince = firstGameDate;
+		}
 
 		memberSince.setHours(0,0,0,0);
 		var daysSinceRegistered = gotStatsApp.utilities.compareDays(new Date(), memberSince);
 		var gamesPerDay = $scope.statistics.analyzingGames.length/parseFloat(daysSinceRegistered);
+
+		// Will not recalculate on date filter
+		if($rootScope.player.isRanked && !$scope.statistics.misc.globalRankMsg){
+			calculateGlobalRanking();
+		}
 
 		$scope.statistics.misc = {
 			memberSince : memberSince,
 			gamesPerDay : gamesPerDay,
 			longestStreak : longestStreak,
 			mostActiveDay : mostActiveDay,
-			gamesOnMostActiveDay: gamesOnMostActiveDay,
-			globalRankMsg : "Calculating..."
+			gamesOnMostActiveDay: gamesOnMostActiveDay
 		}
 
 		generateRecentActivityChart();
-		if($rootScope.player.isRanked){
-			calculateGlobalRanking();
-		}
 	}
 
 	var generateRecentActivityChart = function(){
@@ -1268,8 +1288,8 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 		var recentDays = [];
 		var isRecentgame = true;
 
-		for(var i=0;i<$scope.statistics.analyzingGames.length; i++){
-			game = $scope.statistics.analyzingGames[i];
+		for(var i=0;i<$scope.statistics.allGames.length; i++){
+			game = $scope.statistics.allGames[i];
 
 			if(isRecentgame){
 				var gameDay = new Date(game.ended);
