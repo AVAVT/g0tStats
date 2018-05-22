@@ -202,7 +202,7 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 		$http.get("https://online-go.com/api/v1/players/" + id).then(
 			function(successData){
 				$scope.statistics.player = successData.data;
-				$rootScope.player = {username : successData.data.username, rank : gotStatsApp.utilities.convertRankToDisplay(successData.data.ranking), id: successData.data.id, isRanked : (successData.data.provisional_games_left < 1)};
+				$rootScope.player = {username : successData.data.username, rank : gotStatsApp.utilities.convertRankToDisplay(gotStatsApp.utilities.convertRatingToRank(successData.data.ratings.overall.rating)), id: successData.data.id, isRanked : (successData.data.provisional_games_left < 1)};
 				getAllGames(onGameFetchingComplete);
 			},
 			function(errorData){
@@ -1153,11 +1153,11 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 				opponent = game.players.white;
 				//rankDifference += (game.white_player_rank - game.black_player_rank); Doesn't work
 
-				if(game.white_lost && opponent.ranking > strongestDefeatedOpponent.rank){
+				if(game.white_lost && gotStatsApp.utilities.convertRatingToRank(opponent.ratings.overall.rating) > strongestDefeatedOpponent.rank){
 					strongestDefeatedOpponent = {
 						id: opponent.id,
 						username: opponent.username,
-						rank : opponent.ranking,
+						rank : gotStatsApp.utilities.convertRatingToRank(opponent.ratings.overall.rating),
 						url : game.related.detail.split("games/")[1],
 						outcome : (game.outcome == "Resignation" ? "a bloody" : "an intense")
 					};
@@ -1167,11 +1167,11 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 				opponent = game.players.black;
 				//rankDifference += (game.black_player_rank - game.white_player_rank);
 
-				if(game.black_lost && opponent.ranking > strongestDefeatedOpponent.rank){
+				if(game.black_lost && gotStatsApp.utilities.convertRatingToRank(opponent.ratings.overall.rating) > strongestDefeatedOpponent.rank){
 					strongestDefeatedOpponent = {
 						id: opponent.id,
 						username: opponent.username,
-						rank : opponent.ranking,
+						rank : gotStatsApp.utilities.convertRatingToRank(opponent.ratings.overall.rating),
 						url : game.related.detail.split("games/")[1],
 						outcome : (game.outcome == "Resignation" ? "a bloody" : "an intense")
 					};
@@ -1185,9 +1185,9 @@ gotStatsControlers.controller('UserStatisticsController', ['$scope', '$rootScope
 				opponents[opponent.id]++;
 			}
 
-			if(opponents[opponent.id] > mostPlayed.games) mostPlayed = { id: opponent.id, username: opponent.username, rank : gotStatsApp.utilities.convertRankToDisplay(opponent.ranking), games : opponents[opponent.id]};
-			if(opponent.ranking > strongestOpp.rank) strongestOpp = { id: opponent.id, username: opponent.username, rank : opponent.ranking};
-			if(opponent.ranking < weakestOpp.rank) weakestOpp = { id: opponent.id, username: opponent.username, rank : opponent.ranking};
+			if(opponents[opponent.id] > mostPlayed.games) mostPlayed = { id: opponent.id, username: opponent.username, rank : gotStatsApp.utilities.convertRankToDisplay(gotStatsApp.utilities.convertRatingToRank(opponent.ratings.overall.rating)), games : opponents[opponent.id]};
+			if(gotStatsApp.utilities.convertRatingToRank(opponent.ratings.overall.rating) > strongestOpp.rank) strongestOpp = { id: opponent.id, username: opponent.username, rank : gotStatsApp.utilities.convertRatingToRank(opponent.ratings.overall.rating)};
+			if(gotStatsApp.utilities.convertRatingToRank(opponent.ratings.overall.rating) < weakestOpp.rank) weakestOpp = { id: opponent.id, username: opponent.username, rank : gotStatsApp.utilities.convertRatingToRank(opponent.ratings.overall.rating)};
 		}
 
 		for (var k in opponents) {

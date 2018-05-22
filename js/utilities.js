@@ -16,6 +16,14 @@ gotStatsApp.utilities = {
 			return (rank - 29) + "d";
 	},
 
+	convertRatingToRank : function(rating){
+		var rank = Math.log(rating / 850.0) / 0.032
+
+		rank = Math.floor(rank);
+
+		return rank;
+	},
+
 	compareDays : function(day1, day2){
 		/* Copa pasta I don't even know if there's any bug here */
 
