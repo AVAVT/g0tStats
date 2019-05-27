@@ -2,136 +2,158 @@
 <html lang="en" ng-app="gotStatsApp">
 
 <head>
-	<title>G0t Stats?</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>G0t Stats?</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-	 crossorigin="anonymous">
-	<link rel="stylesheet" type="text/css" href="css/style_1.1.0.css">
-	<link rel="stylesheet" type="text/css" href="css/go_loading.css">
-	<link rel="stylesheet" href="css/flatpickr.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="css/style_1.1.0.css">
+  <link rel="stylesheet" type="text/css" href="css/go_loading.css">
+  <link rel="stylesheet" href="css/flatpickr.min.css">
 
-	<!-- AngularJS -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-route.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-sanitize.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-	 crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-google-chart/0.1.0/ng-google-chart.js" type="text/javascript"></script>
+  <!-- AngularJS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-route.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-sanitize.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-google-chart/0.1.0/ng-google-chart.js"
+    type="text/javascript"></script>
 
-	<script src="js/flatpickr.js"></script>
+  <script src="js/flatpickr.js"></script>
 
-	<!-- App -->
-	<script src="js/app.js"></script>
-	<script src="js/utilities.js"></script>
-	<script src="js/controllers.js"></script>
-	<script src="js/directives.js"></script>
+  <!-- App -->
+  <script src="js/app.js"></script>
+  <script src="js/utilities.js"></script>
+  <script src="js/controllers.js"></script>
+  <script src="js/directives.js"></script>
 </head>
 
 <body data-spy="scroll" data-target=".navi" data-offset="200">
-	<header class="header">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-12">
-					<h1><a href="http://online-go.com" target="_blank"><img src="https://a00ce0086bda2213e89f-570db0116da8eb5fdc3ce95006e46d28.ssl.cf1.rackcdn.com/4.0/img/ogslogo.png"
-							 alt="OGS logo" /></a> statistics <span ng-show="$root.player">for player {{$root.player.username}}
-							({{$root.player.rank}})</span></h1>
-				</div>
-			</div>
-		</div>
-	</header>
+  <header class="header">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <h1><a href="http://online-go.com" target="_blank"><img
+                src="https://a00ce0086bda2213e89f-570db0116da8eb5fdc3ce95006e46d28.ssl.cf1.rackcdn.com/4.0/img/ogslogo.png"
+                alt="OGS logo" /></a> statistics <span ng-show="$root.player">for player {{$root.player.username}}
+              ({{$root.player.rank}})</span></h1>
+        </div>
+      </div>
+    </div>
+  </header>
+  <h3 style="color: yellow;">
+    NOTICE: This project is no longer maintained. My efforts are now going toward the <a
+      href="https://github.com/AVAVT/g0tstats-react">next version of g0tStats</a>, which will replace this version as
+    soon as it cover the same features.<br />
+    Please check it for updates and/or give me support :)
+  </h3>
 
-	<div class="container stats_content">
-		<div class="row">
-			<div class="col-sm-9" ng-view>
-				This page is intentionally left blank.
-			</div>
+  <div class="container stats_content">
+    <div class="row">
+      <div class="col-sm-9" ng-view>
+        This page is intentionally left blank.
+      </div>
 
-			<div class="col-sm-3 sidebar" ng-controller="SidebarController">
-				<nav class="side_nav" data-spy="affix" data-offset-top="95">
-					<form name="searchForm" data-ng-submit="getUserStatistic()">
-						<div class="input-group">
-							<input name="id" data-ng-model="searchId" required placeholder="Username or ID" type="text" class="form-control">
-							<span class="input-group-btn">
-								<button class="btn btn-primary" type="submit">g0t Stats?</button>
-							</span>
-						</div>
-					</form>
+      <div class="col-sm-3 sidebar" ng-controller="SidebarController">
+        <nav class="side_nav" data-spy="affix" data-offset-top="95">
+          <form name="searchForm" data-ng-submit="getUserStatistic()">
+            <div class="input-group">
+              <input name="id" data-ng-model="searchId" required placeholder="Username or ID" type="text"
+                class="form-control">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="submit">g0t Stats?</button>
+              </span>
+            </div>
+          </form>
 
-					<small class="tip"><em>*Tip: mouse over/tap on a chart to see more info.</em></small>
+          <small class="tip"><em>*Tip: mouse over/tap on a chart to see more info.</em></small>
 
-					<div class="navi hidden-sm hidden-xs" ng-hide="!$root.ready">
-						<hr>
-						<ul class="nav navi_list">
-							<li><a href="#total_games_stats" ng-click="scrollTo('total_games_stats')" onclick="event.preventDefault();">Total
-									games played on OGS</a></li>
-							<li><a href="#game_results" ng-click="scrollTo('game_results')" onclick="event.preventDefault();">Game results
-									distribution</a></li>
-							<li><a href="#ranked_games_stats" ng-click="scrollTo('ranked_games_stats')" onclick="event.preventDefault();">Ranked
-									games</a></li>
-							<li><a href="#unranked_games_stats" ng-click="scrollTo('unranked_games_stats')" onclick="event.preventDefault();">Unranked
-									games</a></li>
-							<li><a href="#even_games_stats" ng-click="scrollTo('even_games_stats')" onclick="event.preventDefault();">Even
-									games</a></li>
-							<li><a href="#tournament_games_stats" ng-click="scrollTo('tournament_games_stats')" onclick="event.preventDefault();">Performance
-									in tournaments</a></li>
-							<li><a href="#board_sizes_stats" ng-click="scrollTo('board_sizes_stats')" onclick="event.preventDefault();">Performance
-									across board sizes</a></li>
-							<li><a href="#time_settings_stats" ng-click="scrollTo('time_settings_stats')" onclick="event.preventDefault();">Performance
-									across time settings</a></li>
-							<li><a href="#opponents_stats" ng-click="scrollTo('opponents_stats')" onclick="event.preventDefault();">Opponents
-									statistics</a></li>
-							<li><a href="#misc_stats" ng-click="scrollTo('misc_stats')" onclick="event.preventDefault();">Miscellaneous
-									statistics</a></li>
-						</ul>
-						<hr>
-						<div>
-							<form>
-								<p>Analyze games starting from</p>
-								<div class="input-group">
-									<input type="text" class="form-control" name="date" id="datepicker">
-									<span class="input-group-btn">
-										<button class="btn btn-primary" ng-click="filterGames()" type="button"><i class="glyphicon glyphicon-search"></i></button>
-									</span>
-								</div>
-							</form>
-						</div>
-						<hr>
-						<div ng-show="!$root.userDataSaved">
-							<p>Save data for this player?</p>
-							<p>
-								<button ng-click="saveUserData()" class="btn btn-primary">Save</button>
-							</p>
-						</div>
-						<div ng-show="$root.userDataSaved">
-							<p><span class="glyphicon glyphicon-check" aria-hidden="true"></span> Data saved for faster access in the
-								future.</p>
-						</div>
-						<div>
-							<p><small><em>Only 1 user can be saved because of storage reasons.</em></small></p>
-						</div>
-					</div>
-			</div>
-			</nav>
-		</div>
-	</div>
-	<footer class="footer">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-8">
-					<p><em>"G0t Stats?" analytics tool for <a target="_blank" href="www.online-go.com">OGS</a> by Chinitsu (aka
-							AVAVT).</em></p>
-					<p><em>The source code is also available on <a href="https://github.com/AVAVT/g0tStats" target="_blank">Github</a>.</em></p>
-					<p><em>Found a bug? Have some suggestions? <a href="mailto:itsavavt@gmail.com">Send me an email!</a></em></p>
-				</div>
-				<div class="col-sm-4 text-right">
-					<a href="http://www.vatcss.info">Back to main site</a>
-				</div>
-			</div>
-		</div>
-	</footer>
+          <div class="navi hidden-sm hidden-xs" ng-hide="!$root.ready">
+            <hr>
+            <ul class="nav navi_list">
+              <li><a href="#total_games_stats" ng-click="scrollTo('total_games_stats')"
+                  onclick="event.preventDefault();">Total
+                  games played on OGS</a></li>
+              <li><a href="#game_results" ng-click="scrollTo('game_results')" onclick="event.preventDefault();">Game
+                  results
+                  distribution</a></li>
+              <li><a href="#ranked_games_stats" ng-click="scrollTo('ranked_games_stats')"
+                  onclick="event.preventDefault();">Ranked
+                  games</a></li>
+              <li><a href="#unranked_games_stats" ng-click="scrollTo('unranked_games_stats')"
+                  onclick="event.preventDefault();">Unranked
+                  games</a></li>
+              <li><a href="#even_games_stats" ng-click="scrollTo('even_games_stats')"
+                  onclick="event.preventDefault();">Even
+                  games</a></li>
+              <li><a href="#tournament_games_stats" ng-click="scrollTo('tournament_games_stats')"
+                  onclick="event.preventDefault();">Performance
+                  in tournaments</a></li>
+              <li><a href="#board_sizes_stats" ng-click="scrollTo('board_sizes_stats')"
+                  onclick="event.preventDefault();">Performance
+                  across board sizes</a></li>
+              <li><a href="#time_settings_stats" ng-click="scrollTo('time_settings_stats')"
+                  onclick="event.preventDefault();">Performance
+                  across time settings</a></li>
+              <li><a href="#opponents_stats" ng-click="scrollTo('opponents_stats')"
+                  onclick="event.preventDefault();">Opponents
+                  statistics</a></li>
+              <li><a href="#misc_stats" ng-click="scrollTo('misc_stats')"
+                  onclick="event.preventDefault();">Miscellaneous
+                  statistics</a></li>
+            </ul>
+            <hr>
+            <div>
+              <form>
+                <p>Analyze games starting from</p>
+                <div class="input-group">
+                  <input type="text" class="form-control" name="date" id="datepicker">
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary" ng-click="filterGames()" type="button"><i
+                        class="glyphicon glyphicon-search"></i></button>
+                  </span>
+                </div>
+              </form>
+            </div>
+            <hr>
+            <div ng-show="!$root.userDataSaved">
+              <p>Save data for this player?</p>
+              <p>
+                <button ng-click="saveUserData()" class="btn btn-primary">Save</button>
+              </p>
+            </div>
+            <div ng-show="$root.userDataSaved">
+              <p><span class="glyphicon glyphicon-check" aria-hidden="true"></span> Data saved for faster access in the
+                future.</p>
+            </div>
+            <div>
+              <p><small><em>Only 1 user can be saved because of storage reasons.</em></small></p>
+            </div>
+          </div>
+      </div>
+      </nav>
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-8">
+          <p><em>"G0t Stats?" analytics tool for <a target="_blank" href="www.online-go.com">OGS</a> by Chinitsu (aka
+              AVAVT).</em></p>
+          <p><em>The source code is also available on <a href="https://github.com/AVAVT/g0tStats"
+                target="_blank">Github</a>.</em></p>
+          <p><em>Found a bug? Have some suggestions? <a href="mailto:itsavavt@gmail.com">Send me an email!</a></em></p>
+        </div>
+        <div class="col-sm-4 text-right">
+          <a href="http://www.vatcss.info">Back to main site</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
 
 </html>
